@@ -30,7 +30,7 @@ $page_title = "메인이미지 추가";
                     <h1 class="admin-title">메인이미지 추가</h1>
                 </div>
                 <div class="admin-header-actions">
-                    <button class="btn-secondary" onclick="history.back()">
+                    <button class="btn btn-secondary" onclick="history.back()">
                         <i class="fas fa-arrow-left"></i> 돌아가기
                     </button>
                 </div>

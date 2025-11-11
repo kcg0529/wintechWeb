@@ -63,7 +63,7 @@ $page_title = "메인이미지 관리";
                     <p class="admin-subtitle">총 <?php echo number_format($totalImages); ?>개의 이미지</p>
                 </div>
                 <div class="admin-header-actions">
-                    <a href="admin_mainimage_write.php" class="btn-primary">
+                    <a href="admin_mainimage_write.php" class="btn btn-primary">
                         <i class="fas fa-plus"></i> 이미지 추가
                     </a>
                 </div>

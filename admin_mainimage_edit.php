@@ -45,7 +45,7 @@ $page_title = "메인이미지 수정";
                     <h1 class="admin-title">메인이미지 수정</h1>
                 </div>
                 <div class="admin-header-actions">
-                    <button class="btn-secondary" onclick="location.href='admin_mainimages.php'">
+                    <button class="btn btn-secondary" onclick="location.href='admin_mainimages.php'">
                         <i class="fas fa-arrow-left"></i> 목록으로
                     </button>
                 </div>

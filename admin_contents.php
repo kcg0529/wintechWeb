@@ -56,7 +56,7 @@ $page_title = '콘텐츠관리 - 행복운동센터';
                         <option value="50" <?php echo $contents_per_page == 50 ? 'selected' : ''; ?>>50개</option>
                         <option value="100" <?php echo $contents_per_page == 100 ? 'selected' : ''; ?>>100개</option>
                     </select>
-                    <a href="admin_content_write.php" class="btn-primary" style="margin-left: 10px;">
+                    <a href="admin_content_write.php" class="btn btn-primary" style="margin-left: 10px;">
                         <i class="fas fa-plus"></i> 콘텐츠 추가
                     </a>
                 </div>
