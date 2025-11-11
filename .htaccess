@@ -1,0 +1,39 @@
+# Unity WebGL 파일 캐시 제어
+<IfModule mod_headers.c>
+    # Unity 관련 파일들에 대해 캐시 제어
+    <FilesMatch "\.(unityweb|wasm|json)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </FilesMatch>
+</IfModule>
+
+# Unity 게임 폴더 직접 접근 방지 및 index.php로 리다이렉트
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # road/ 폴더 루트로 직접 접근 시 index.php?content=unity_road로 리다이렉트
+    RewriteCond %{REQUEST_URI} ^/road/?$
+    RewriteRule ^road/?$ index.php?content=unity_road [R=301,L]
+    
+    # road/index.html로 직접 접근 시 index.php?content=unity_road로 리다이렉트
+    RewriteCond %{REQUEST_URI} ^/road/index\.html?$
+    RewriteRule ^road/index\.html?$ index.php?content=unity_road [R=301,L]
+    
+    # minigame/ 폴더 루트로 직접 접근 시 index.php?content=minigame으로 리다이렉트
+    RewriteCond %{REQUEST_URI} ^/minigame/?$
+    RewriteRule ^minigame/?$ index.php?content=minigame [R=301,L]
+    
+    # minigame/index.html로 직접 접근 시 index.php?content=minigame으로 리다이렉트
+    RewriteCond %{REQUEST_URI} ^/minigame/index\.html?$
+    RewriteRule ^minigame/index\.html?$ index.php?content=minigame [R=301,L]
+    
+    # Kid_Quiz/ 폴더 루트로 직접 접근 시 index.php?content=kid_quiz로 리다이렉트
+    RewriteCond %{REQUEST_URI} ^/Kid_Quiz/?$
+    RewriteRule ^Kid_Quiz/?$ index.php?content=kid_quiz [R=301,L]
+    
+    # Kid_Quiz/index.html로 직접 접근 시 index.php?content=kid_quiz로 리다이렉트
+    RewriteCond %{REQUEST_URI} ^/Kid_Quiz/index\.html?$
+    RewriteRule ^Kid_Quiz/index\.html?$ index.php?content=kid_quiz [R=301,L]
+</IfModule>
+

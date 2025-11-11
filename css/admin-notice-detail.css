@@ -1,0 +1,76 @@
+/* 공지사항 상세보기 페이지 스타일 */
+.notice-detail {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 30px;
+}
+
+.notice-header {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #f8f9fa;
+}
+
+.notice-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 15px;
+    line-height: 1.4;
+}
+
+.notice-meta {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    color: #666;
+    font-size: 14px;
+}
+
+.notice-tag {
+    background: #3498db;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.notice-views {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.notice-date {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.notice-content {
+    font-size: 16px;
+    line-height: 1.8;
+    color: #333;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.notice-actions {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.no-tag {
+    color: #999;
+    font-style: italic;
+}
+
+
+
+

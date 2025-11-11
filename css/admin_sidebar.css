@@ -1,0 +1,164 @@
+/* 사이드바 스타일 */
+.admin-sidebar {
+    width: 250px;
+    background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    padding: 20px 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    z-index: 1000;
+}
+
+.admin-profile {
+    text-align: center;
+    padding: 20px;
+    border-bottom: 1px solid #34495e;
+    margin-bottom: 20px;
+}
+
+.admin-avatar {
+    width: 80px;
+    height: 80px;
+    background: #3498db;
+    border-radius: 50%;
+    margin: 0 auto 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+}
+
+.admin-name {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.admin-role {
+    font-size: 12px;
+    color: #bdc3c7;
+}
+
+.admin-menu {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 100px 0; /* 로그아웃 버튼 공간 확보 */
+}
+
+.admin-menu li {
+    margin-bottom: 5px;
+}
+
+.admin-menu a {
+    display: flex;
+    align-items: center;
+    padding: 15px 25px;
+    color: #ecf0f1;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+    width: 100%;
+    box-sizing: border-box; /* 내부 패딩으로 폭 증가 방지 */
+}
+
+.admin-menu a:hover,
+.admin-menu a.active {
+    background: rgba(52, 152, 219, 0.2);
+    border-left-color: #3498db;
+    color: white;
+}
+
+.admin-menu .has-submenu > a {
+    justify-content: space-between;
+}
+
+.submenu {
+    list-style: none;
+    margin: 0;
+    padding-left: 20px; /* 과도한 들여쓰기 축소 */
+    background: rgba(255,255,255,0.03);
+}
+
+.submenu li a {
+    padding: 12px 25px;
+    border-left: 3px solid transparent;
+}
+
+.admin-menu i {
+    width: 20px;
+    margin-right: 12px;
+    text-align: center;
+}
+
+.admin-menu .arrow {
+    margin-left: auto;
+    font-size: 12px;
+}
+
+/* 로그아웃 섹션 */
+.admin-logout-section {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20px 25px;
+    background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+    border-top: 1px solid #34495e;
+}
+
+.admin-logout-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 12px 20px;
+    background: #e74c3c;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.admin-logout-btn:hover {
+    background: #c0392b;
+    transform: translateY(-1px);
+}
+
+.admin-logout-btn i {
+    margin-right: 8px;
+    font-size: 14px;
+}
+
+/* 반응형 사이드바 */
+@media (max-width: 768px) {
+    .admin-sidebar {
+        width: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-sidebar {
+        width: 100%;
+        position: relative;
+        height: auto;
+    }
+    
+    .admin-logout-section {
+        position: relative;
+        bottom: auto;
+        margin-top: 20px;
+        background: transparent;
+        border-top: none;
+    }
+    
+    .admin-menu {
+        padding: 0 0 20px 0; /* 모바일에서는 패딩 축소 */
+    }
+}

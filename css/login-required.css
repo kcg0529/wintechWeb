@@ -1,0 +1,66 @@
+/* 로그인 필요 메시지 스타일 */
+.login-required-container {
+    text-align: center;
+    padding: 200px 20px;
+    background: #f8f9fa;
+    min-height: 100vh;
+}
+
+.login-required-box {
+    max-width: 600px;
+    margin: 0 auto;
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.login-required-icon {
+    font-size: 4rem;
+    color: #667eea;
+    margin-bottom: 20px;
+}
+
+.login-required-title {
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+.login-required-text {
+    color: #7f8c8d;
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+.login-required-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.login-required-btn {
+    padding: 12px 24px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.login-required-btn.login {
+    background: #667eea;
+    color: white;
+}
+
+.login-required-btn.login:hover {
+    background: #5568d3;
+}
+
+.login-required-btn.signup {
+    background: #28a745;
+    color: white;
+}
+
+.login-required-btn.signup:hover {
+    background: #218838;
+}
+

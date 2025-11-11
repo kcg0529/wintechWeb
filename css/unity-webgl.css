@@ -1,0 +1,274 @@
+/* Unity WebGL 공통 스타일 */
+body.unity-page,
+main.unity-page {
+    overflow-x: hidden !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+}
+
+.unity-content {
+    padding: 120px 0 80px;
+    background: #f8f9fa;
+    min-height: calc(100vh - 120px);
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    overflow-y: auto;
+    position: relative;
+}
+
+.unity-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.unity-content-area {
+    background: white;
+    border-radius: 12px;
+    padding: 30px 30px 40px 30px; /* 하단 패딩 증가 */
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: visible;
+    position: relative;
+}
+
+.unity-webgl-container {
+    margin-bottom: 40px;
+    border-radius: 8px;
+    overflow: visible;
+    background: transparent;
+    width: 100%;
+    max-width: 960px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Unity 기본 스타일 오버라이드 - 최우선 적용 */
+.unity-webgl-container .webgl-content,
+.unity-content-area .unity-webgl-container .webgl-content,
+div.unity-webgl-container div.webgl-content {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    -webkit-transform: none !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: 960px !important;
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+    min-height: auto !important;
+    height: auto !important;
+    padding-bottom: 10px !important; /* footer를 위한 여유 공간 */
+}
+
+.unity-webgl-container .webgl-content #unityContainer {
+    width: 960px !important;
+    max-width: 100% !important;
+    min-height: 600px;
+    height: auto;
+    background: #231F20;
+    margin: 0 auto;
+    display: block;
+    box-sizing: border-box;
+    position: relative;
+    overflow: visible;
+}
+
+/* Unity 캔버스가 컨테이너를 벗어나지 않도록 */
+.unity-webgl-container .webgl-content #unityContainer canvas {
+    max-width: 100% !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 600px !important;
+    display: block !important;
+}
+
+/* Unity 컨테이너 내부의 추가 요소들 표시 */
+.unity-webgl-container .webgl-content #unityContainer > * {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Unity 게임이 생성하는 모든 요소들이 컨테이너 안에 있도록 */
+.unity-webgl-container * {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Unity 기본 스타일의 인라인 스타일 강제 오버라이드 */
+.unity-webgl-container .webgl-content[style],
+.unity-webgl-container .webgl-content[style*="position"],
+.unity-webgl-container .webgl-content[style*="absolute"],
+.unity-webgl-container .webgl-content[style*="transform"] {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    -webkit-transform: none !important;
+    transform: none !important;
+}
+
+/* Unity 로딩 프로그레스 바 스타일 유지 */
+.unity-webgl-container .webgl-content .logo,
+.unity-webgl-container .webgl-content .progress {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.webgl-content .footer,
+.unity-webgl-container .webgl-content .footer,
+div.webgl-content div.footer {
+    margin-top: 5px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 10px !important;
+    width: 100% !important;
+    max-width: 960px !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    float: none !important;
+    clear: both !important;
+}
+
+.webgl-content .footer.road-footer {
+    margin-top: 5px;
+}
+
+.webgl-content .footer.minigame-footer {
+    background: #231F20;
+}
+
+.webgl-content .footer .webgl-logo,
+.webgl-content .footer .title,
+.webgl-content .footer .fullscreen {
+    background: transparent center no-repeat;
+}
+
+/* Road Unity 스타일 */
+.webgl-content .footer.road-footer .webgl-logo {
+    background-image: url('../road/TemplateData/webgl-logo.png');
+    width: 204px;
+    height: 38px;
+}
+
+.webgl-content .footer.road-footer .fullscreen {
+    background-image: url('../road/TemplateData/fullscreen.png');
+    width: 38px;
+    height: 38px;
+    cursor: pointer;
+}
+
+/* Minigame Unity 스타일 */
+.webgl-content .footer.minigame-footer .webgl-logo {
+    background-image: url('../minigame/TemplateData/webgl-logo.png');
+    width: 204px;
+    height: 38px;
+}
+
+.webgl-content .footer.minigame-footer .fullscreen {
+    background-image: url('../minigame/TemplateData/fullscreen.png');
+    width: 38px;
+    height: 38px;
+    cursor: pointer;
+}
+
+/* Kid Quiz Unity 스타일 */
+.webgl-content .footer.kid-quiz-footer .webgl-logo {
+    background-image: url('../Kid_Quiz/TemplateData/webgl-logo.png');
+    width: 204px;
+    height: 38px;
+}
+
+.webgl-content .footer.kid-quiz-footer .fullscreen {
+    background-image: url('../Kid_Quiz/TemplateData/fullscreen.png');
+    width: 38px;
+    height: 38px;
+    cursor: pointer;
+}
+
+.webgl-content .footer .title {
+    margin-right: 10px;
+    line-height: 38px;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1024px) {
+    .unity-webgl-container {
+        max-width: 100%;
+    }
+    
+    .unity-webgl-container .webgl-content {
+        max-width: 100%;
+    }
+    
+    .unity-webgl-container .webgl-content #unityContainer {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .unity-content {
+        padding: 100px 0 60px;
+    }
+    
+    .unity-container {
+        padding: 0 15px;
+    }
+    
+    .unity-content-area {
+        padding: 20px 20px 30px 20px;
+    }
+    
+    .unity-webgl-container {
+        max-width: 100%;
+    }
+    
+    .unity-webgl-container .webgl-content {
+        min-height: 438px !important; /* 400px (game) + 38px (footer) */
+    }
+    
+    .unity-webgl-container .webgl-content #unityContainer {
+        width: 100% !important;
+        height: 400px;
+        max-width: 100% !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .unity-webgl-container .webgl-content {
+        min-height: 338px !important; /* 300px (game) + 38px (footer) */
+    }
+    
+    .unity-webgl-container .webgl-content #unityContainer {
+        width: 100% !important;
+        height: 300px;
+        max-width: 100% !important;
+    }
+}
+
