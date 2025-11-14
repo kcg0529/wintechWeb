@@ -26,19 +26,21 @@ try {
     
     $cycle_data = [];
     
+    // 변수 초기화
+    $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+    $items_per_page = isset($_GET['per_page']) ? (int)$_GET['per_page'] : 10;
+    $current_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $offset = ($current_page - 1) * $items_per_page;
+    $total_items = 0;
+    $total_pages = 0;
+    
     if ($table_exists) {
         // 검색어 처리
-        $search = isset($_GET['search']) ? trim($_GET['search']) : '';
         $search_condition = '';
         if (!empty($search)) {
             $search_escaped = mysqli_real_escape_string($conn, $search);
             $search_condition = "WHERE (name LIKE '%$search_escaped%' OR exercise_time LIKE '%$search_escaped%' OR average_velocity LIKE '%$search_escaped%' OR distance LIKE '%$search_escaped%')";
         }
-        
-        // 페이지네이션 설정
-        $items_per_page = isset($_GET['per_page']) ? (int)$_GET['per_page'] : 10;
-        $current_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-        $offset = ($current_page - 1) * $items_per_page;
         
         // 전체 데이터 개수 조회 (검색 조건 포함)
         $total_items = CycleDAO::getTotalCycles($search_condition);
@@ -46,13 +48,8 @@ try {
         // 총 페이지 수 계산
         $total_pages = ceil($total_items / $items_per_page);
         
-        // wintech_cycle 데이터 조회 (검색 조건 및 페이지네이션 적용)
+        // distance 데이터 조회 (검색 조건 및 페이지네이션 적용)
         $cycle_data = CycleDAO::getCycles($search_condition, $items_per_page, $offset);
-    } else {
-        $total_items = 0;
-        $total_pages = 0;
-        $current_page = 1;
-        $items_per_page = 10;
     }
     
     
@@ -65,7 +62,7 @@ try {
     ];
     
     // 총 세션 수
-    $count_query = "SELECT COUNT(*) as total FROM wintech_cycle";
+    $count_query = "SELECT COUNT(*) as total FROM cycle_distance";
     $count_result = mysqli_query($conn, $count_query);
     if ($count_result) {
         $count_row = mysqli_fetch_assoc($count_result);
@@ -73,7 +70,7 @@ try {
     }
     
     // 총 사용자 수 (고유 사용자)
-    $user_query = "SELECT COUNT(DISTINCT account) as total FROM wintech_cycle";
+    $user_query = "SELECT COUNT(DISTINCT name) as total FROM cycle_distance";
     $user_result = mysqli_query($conn, $user_query);
     if ($user_result) {
         $user_row = mysqli_fetch_assoc($user_result);
@@ -81,15 +78,27 @@ try {
     }
     
     // 평균 사이클 시간
-    $avg_query = "SELECT AVG(cycle_time) as avg_time FROM wintech_cycle WHERE cycle_time > 0";
+    $avg_query = "SELECT AVG(exercise_time) as avg_time FROM cycle_distance";
     $avg_result = mysqli_query($conn, $avg_query);
     if ($avg_result) {
         $avg_row = mysqli_fetch_assoc($avg_result);
-        $stats['avg_cycle_time'] = round($avg_row['avg_time'], 1);
+        // exercise_time이 "분 : 초" 형식이므로 초로 변환 후 평균 계산
+        $avg_time_str = $avg_row['avg_time'];
+        if (!empty($avg_time_str)) {
+            // "분 : 초" 형식을 초로 변환하는 함수
+            if (preg_match('/^(\d+)\s*:\s*(\d+)$/', $avg_time_str, $matches)) {
+                $minutes = (int)$matches[1];
+                $seconds = (int)$matches[2];
+                $total_seconds = ($minutes * 60) + $seconds;
+                $stats['avg_cycle_time'] = round($total_seconds / 60, 1); // 분으로 변환
+            } else {
+                $stats['avg_cycle_time'] = round((float)$avg_time_str / 60, 1);
+            }
+        }
     }
     
     // 총 거리
-    $distance_query = "SELECT SUM(cycle_distance) as total_distance FROM wintech_cycle WHERE cycle_distance > 0";
+    $distance_query = "SELECT SUM(distance) as total_distance FROM cycle_distance WHERE distance > 0";
     $distance_result = mysqli_query($conn, $distance_query);
     if ($distance_result) {
         $distance_row = mysqli_fetch_assoc($distance_result);
@@ -177,7 +186,6 @@ $page_title = 'VR 데이터관리 - 행복운동센터';
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>no</th>
                                 <th>저장시간</th>
                                 <th>아이디</th>
                                 <th>운동시간</th>
@@ -189,7 +197,6 @@ $page_title = 'VR 데이터관리 - 행복운동센터';
                         <tbody>
                             <?php foreach ($cycle_data as $cycle): ?>
                                 <tr>
-                                    <td><?php echo htmlspecialchars($cycle['no']); ?></td>
                                     <td><?php echo htmlspecialchars($cycle['SaveTime']); ?></td>
                                     <td><?php echo htmlspecialchars($cycle['name']); ?></td>
                                     <td><?php echo htmlspecialchars($cycle['exercise_time']); ?></td>
@@ -210,7 +217,7 @@ $page_title = 'VR 데이터관리 - 행복운동센터';
                                         ?>
                                     </td>
                                     <td>
-                                        <button class="delete-btn" onclick="deleteCycleData(<?php echo $cycle['no']; ?>)">
+                                        <button class="delete-btn" onclick="deleteCycleData('<?php echo htmlspecialchars($cycle['SaveTime']); ?>', '<?php echo htmlspecialchars($cycle['name']); ?>')">
                                             <i class="fas fa-trash"></i> 삭제
                                         </button>
                                     </td>

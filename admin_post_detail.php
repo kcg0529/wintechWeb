@@ -116,11 +116,12 @@ $page_title = '게시글 상세보기 - 행복운동센터';
                 <div class="comment-form-section">
                     <h4 class="comment-form-title">
                         <i class="fas fa-edit"></i> 댓글 작성
+                        <span class="char-count" id="adminCommentCharCount">0/500</span>
                     </h4>
                     <form id="adminCommentForm">
                         <input type="hidden" name="post_id" value="<?php echo $post['no']; ?>">
                         <div class="comment-form-field">
-                            <textarea name="content" placeholder="댓글을 작성해주세요..." required class="comment-textarea"></textarea>
+                            <textarea id="adminCommentContent" name="content" placeholder="댓글을 작성해주세요..." maxlength="500" required class="comment-textarea"></textarea>
                         </div>
                         <div class="comment-form-buttons">
                             <button type="submit" class="btn-comment-submit">

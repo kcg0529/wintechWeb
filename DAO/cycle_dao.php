@@ -3,13 +3,46 @@ require_once 'mysqli_con.php';
 
 class CycleDAO {
     
+    /**
+     * "분 : 초" 형식을 초로 변환
+     */
+    public static function convertTimeFormatToSeconds($timeFormat) {
+        // "60 : 30" -> 3630초
+        if (empty($timeFormat)) return 0;
+        
+        // "분 : 초" 형식 파싱
+        if (preg_match('/^(\d+)\s*:\s*(\d+)$/', $timeFormat, $matches)) {
+            $minutes = (int)$matches[1];
+            $seconds = (int)$matches[2];
+            return ($minutes * 60) + $seconds;
+        }
+        
+        // 숫자만 있는 경우 (기존 데이터 호환)
+        if (is_numeric($timeFormat)) {
+            return (int)$timeFormat;
+        }
+        
+        return 0;
+    }
+    
+    /**
+     * 초를 "분 : 초" 형식으로 변환
+     */
+    public static function convertSecondsToTimeFormat($seconds) {
+        // 3630초 -> "60 : 30"
+        $seconds = (int)$seconds;
+        $minutes = floor($seconds / 60);
+        $remainingSeconds = $seconds % 60;
+        return sprintf("%d : %02d", $minutes, $remainingSeconds);
+    }
+    
     // 일별 데이터 가져오기
     public static function getDailyData($email, $date) {
         try {
             $conn = getConnection();
             $stmt = mysqli_prepare($conn, 
                 "SELECT exercise_time, average_velocity, distance 
-                 FROM wintech_cycle 
+                 FROM cycle_distance 
                  WHERE name = ? AND DATE(SaveTime) = ?"
             );
             mysqli_stmt_bind_param($stmt, "ss", $email, $date);
@@ -19,7 +52,7 @@ class CycleDAO {
             $data = [];
             while ($row = mysqli_fetch_assoc($result)) {
                 $data[] = [
-                    'exercise_time' => $row['exercise_time'], // 초 단위 (DB 저장값)
+                    'exercise_time' => self::convertTimeFormatToSeconds($row['exercise_time']), // "분 : 초"를 초로 변환
                     'average_velocity' => $row['average_velocity'], // m/s 단위
                     'distance' => $row['distance'] // 미터 단위
                 ];
@@ -41,7 +74,7 @@ class CycleDAO {
             $conn = getConnection();
             $stmt = mysqli_prepare($conn, 
                 "SELECT exercise_time, average_velocity, distance 
-                 FROM wintech_cycle 
+                 FROM cycle_distance 
                  WHERE name = ? AND DATE(SaveTime) BETWEEN ? AND ?"
             );
             mysqli_stmt_bind_param($stmt, "sss", $email, $startDate, $endDate);
@@ -51,7 +84,7 @@ class CycleDAO {
             $data = [];
             while ($row = mysqli_fetch_assoc($result)) {
                 $data[] = [
-                    'exercise_time' => $row['exercise_time'], // 초 단위 (DB 저장값)
+                    'exercise_time' => self::convertTimeFormatToSeconds($row['exercise_time']), // "분 : 초"를 초로 변환
                     'average_velocity' => $row['average_velocity'], // m/s 단위
                     'distance' => $row['distance'] // 미터 단위
                 ];
@@ -73,7 +106,7 @@ class CycleDAO {
             $conn = getConnection();
             $stmt = mysqli_prepare($conn, 
                 "SELECT exercise_time, average_velocity, distance 
-                 FROM wintech_cycle 
+                 FROM cycle_distance 
                  WHERE name = ? AND YEAR(SaveTime) = ? AND MONTH(SaveTime) = ?"
             );
             mysqli_stmt_bind_param($stmt, "sii", $email, $year, $month);
@@ -83,7 +116,7 @@ class CycleDAO {
             $data = [];
             while ($row = mysqli_fetch_assoc($result)) {
                 $data[] = [
-                    'exercise_time' => $row['exercise_time'], // 초 단위 (DB 저장값)
+                    'exercise_time' => self::convertTimeFormatToSeconds($row['exercise_time']), // "분 : 초"를 초로 변환
                     'average_velocity' => $row['average_velocity'], // m/s 단위
                     'distance' => $row['distance'] // 미터 단위
                 ];
@@ -104,27 +137,44 @@ class CycleDAO {
         try {
             $conn = getConnection();
             $stmt = mysqli_prepare($conn, 
-                "SELECT MONTH(SaveTime) as month, 
-                        SUM(exercise_time) as total_time, 
-                        AVG(average_velocity) as avg_velocity, 
-                        SUM(distance) as total_distance 
-                 FROM wintech_cycle 
+                "SELECT MONTH(SaveTime) as month, exercise_time, average_velocity, distance
+                 FROM cycle_distance 
                  WHERE name = ? AND YEAR(SaveTime) = ? 
-                 GROUP BY MONTH(SaveTime) 
                  ORDER BY MONTH(SaveTime)"
             );
             mysqli_stmt_bind_param($stmt, "si", $email, $year);
             mysqli_stmt_execute($stmt);
             $result = mysqli_stmt_get_result($stmt);
             
-            $data = [];
+            // 월별로 데이터 집계
+            $monthlyData = array_fill(1, 12, [
+                'total_time' => 0,
+                'velocity_sum' => 0,
+                'velocity_count' => 0,
+                'total_distance' => 0
+            ]);
+            
             while ($row = mysqli_fetch_assoc($result)) {
-                $data[] = [
-                    'month' => $row['month'],
-                    'total_time' => $row['total_time'],
-                    'avg_velocity' => $row['avg_velocity'],
-                    'total_distance' => $row['total_distance']
-                ];
+                $month = (int)$row['month'];
+                $timeInSeconds = self::convertTimeFormatToSeconds($row['exercise_time']);
+                
+                $monthlyData[$month]['total_time'] += $timeInSeconds;
+                $monthlyData[$month]['velocity_sum'] += $row['average_velocity'];
+                $monthlyData[$month]['velocity_count']++;
+                $monthlyData[$month]['total_distance'] += $row['distance'];
+            }
+            
+            // 최종 데이터 생성
+            $data = [];
+            foreach ($monthlyData as $month => $values) {
+                if ($values['velocity_count'] > 0) {
+                    $data[] = [
+                        'month' => $month,
+                        'total_time' => $values['total_time'],
+                        'avg_velocity' => $values['velocity_sum'] / $values['velocity_count'],
+                        'total_distance' => $values['total_distance']
+                    ];
+                }
             }
             
             mysqli_stmt_close($stmt);

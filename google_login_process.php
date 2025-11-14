@@ -49,7 +49,16 @@ $member = mysqli_fetch_assoc($result);
 mysqli_stmt_close($stmt);
 
 if ($member) {
-    // 기존 회원 - 로그인 처리
+    // 기존 회원 확인
+    // password가 있으면 일반 가입 계정, 없으면 소셜 가입 계정
+    if (!empty($member['password'])) {
+        // 일반 가입으로 이미 가입된 이메일
+        mysqli_close($conn);
+        header('Location: login.php?error=email_exists');
+        exit;
+    }
+    
+    // 소셜 가입 계정 - 로그인 처리
     $_SESSION['email'] = $email;
     $_SESSION['account'] = $member['account'];
     $_SESSION['login_type'] = 'google';

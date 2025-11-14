@@ -32,6 +32,25 @@ function deletePost(postId) {
     }
 }
 
+// 댓글 글자 수 카운터 업데이트
+function updateCommentCharCount() {
+    const commentContent = document.getElementById('commentContent');
+    const commentCharCount = document.getElementById('commentCharCount');
+    
+    if (commentContent && commentCharCount) {
+        commentCharCount.textContent = `${commentContent.value.length}/500`;
+    }
+}
+
+// 댓글 작성 폼 초기화
+document.addEventListener('DOMContentLoaded', function() {
+    const commentContent = document.getElementById('commentContent');
+    if (commentContent) {
+        commentContent.addEventListener('input', updateCommentCharCount);
+        updateCommentCharCount(); // 초기 카운트 설정
+    }
+});
+
 // 댓글 작성
 document.getElementById('commentForm').addEventListener('submit', function(e) {
     e.preventDefault();

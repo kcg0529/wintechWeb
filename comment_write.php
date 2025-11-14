@@ -23,7 +23,7 @@ if (empty($content)) {
     exit;
 }
 
-if (strlen($content) > 500) {
+if (mb_strlen($content) > 500) {
     echo json_encode(['success' => false, 'message' => '댓글은 500자 이하로 작성해주세요.']);
     exit;
 }

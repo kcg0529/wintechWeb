@@ -20,6 +20,12 @@ if (!isset($_POST['post_id']) || empty($_POST['post_id']) || !isset($_POST['cont
 $post_id = (int)$_POST['post_id'];
 $content = trim($_POST['content']);
 
+// 내용 길이 검증
+if (mb_strlen($content) > 500) {
+    echo json_encode(['success' => false, 'message' => '댓글은 500자 이하로 작성해주세요.']);
+    exit;
+}
+
 // 관리자 이름 고정
 $admin_name = '관리자';
 

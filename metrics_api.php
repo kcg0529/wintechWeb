@@ -8,6 +8,27 @@ if (!isset($_SESSION['email'])) {
 
 header('Content-Type: application/json; charset=utf-8');
 
+/**
+ * "분 : 초" 형식을 초로 변환
+ */
+function convertTimeFormatToSeconds($timeFormat) {
+    if (empty($timeFormat)) return 0;
+    
+    // "분 : 초" 형식 파싱
+    if (preg_match('/^(\d+)\s*:\s*(\d+)$/', $timeFormat, $matches)) {
+        $minutes = (int)$matches[1];
+        $seconds = (int)$matches[2];
+        return ($minutes * 60) + $seconds;
+    }
+    
+    // 숫자만 있는 경우 (기존 데이터 호환)
+    if (is_numeric($timeFormat)) {
+        return (int)$timeFormat;
+    }
+    
+    return 0;
+}
+
 try {
     $email = $_SESSION['email'];
     $period = $_GET['period'] ?? 'day';
@@ -34,7 +55,7 @@ try {
     
     if ($period === 'day') {
         $sql = "SELECT exercise_time, average_velocity, distance 
-                FROM wintech_cycle 
+                FROM cycle_distance 
                 WHERE name = ? AND DATE(SaveTime) = ?";
         
         $stmt = mysqli_prepare($conn, $sql);
@@ -49,7 +70,7 @@ try {
         $recordCount = 0;
         
         while ($row = mysqli_fetch_assoc($result)) {
-            $totalTime += $row['exercise_time'];
+            $totalTime += convertTimeFormatToSeconds($row['exercise_time']); // "분 : 초"를 초로 변환
             $totalDistance += $row['distance'];
             $velocitySum += $row['average_velocity'];
             $recordCount++;
@@ -102,7 +123,7 @@ try {
         $weekEndStr = $weekEnd->format('Y-m-d');
         
         $sql = "SELECT DATE(SaveTime) as log_date, exercise_time, average_velocity, distance 
-                FROM wintech_cycle 
+                FROM cycle_distance 
                 WHERE name = ? AND DATE(SaveTime) BETWEEN ? AND ?";
         
         $stmt = mysqli_prepare($conn, $sql);
@@ -121,7 +142,8 @@ try {
         $dailyVelocityCount = array_fill(0, 7, 0);
         
         while ($row = mysqli_fetch_assoc($result)) {
-            $totalTime += $row['exercise_time'];
+            $timeInSeconds = convertTimeFormatToSeconds($row['exercise_time']); // "분 : 초"를 초로 변환
+            $totalTime += $timeInSeconds;
             $totalDistance += $row['distance'];
             
             if ($row['average_velocity'] > 0) {
@@ -133,7 +155,7 @@ try {
                 $logDate = new DateTime($row['log_date']);
                 $dayDiff = $weekStart->diff($logDate)->days;
                 if ($dayDiff >= 0 && $dayDiff < 7) {
-                    $dailyTime[$dayDiff] += $row['exercise_time'];
+                    $dailyTime[$dayDiff] += $timeInSeconds;
                     $dailyDistance[$dayDiff] += $row['distance'];
                     if ($row['average_velocity'] > 0) {
                         $dailyVelocitySum[$dayDiff] += $row['average_velocity'];
@@ -211,7 +233,7 @@ try {
         
         // 월간 전체 데이터 조회
         $sql = "SELECT DATE(SaveTime) as date, exercise_time, average_velocity, distance 
-                FROM wintech_cycle 
+                FROM cycle_distance 
                 WHERE name = ? AND DATE(SaveTime) BETWEEN ? AND ?
                 ORDER BY SaveTime";
         
@@ -236,7 +258,8 @@ try {
             // 주차 계산 (1~7일: 1주차, 8~14일: 2주차, 15~21일: 3주차, 22~31일: 4주차)
             $weekIndex = min(3, floor(($dayOfMonth - 1) / 7));
             
-            $weeklyData[$weekIndex]['time'] += $row['exercise_time'];
+            $timeInSeconds = convertTimeFormatToSeconds($row['exercise_time']); // "분 : 초"를 초로 변환
+            $weeklyData[$weekIndex]['time'] += $timeInSeconds;
             $weeklyData[$weekIndex]['distance'] += $row['distance'];
             
             if ($row['average_velocity'] > 0) {
@@ -299,13 +322,9 @@ try {
         $lastDayStr = $lastDay->format('Y-m-d');
         
         // 년간 전체 데이터 조회
-        $sql = "SELECT MONTH(SaveTime) as month, 
-                       SUM(exercise_time) as total_time,
-                       AVG(CASE WHEN average_velocity > 0 THEN average_velocity END) as avg_velocity,
-                       SUM(distance) as total_distance
-                FROM wintech_cycle 
+        $sql = "SELECT MONTH(SaveTime) as month, exercise_time, average_velocity, distance
+                FROM cycle_distance 
                 WHERE name = ? AND DATE(SaveTime) BETWEEN ? AND ?
-                GROUP BY MONTH(SaveTime)
                 ORDER BY MONTH(SaveTime)";
         
         $stmt = mysqli_prepare($conn, $sql);
@@ -314,19 +333,40 @@ try {
         
         $result = mysqli_stmt_get_result($stmt);
         
-        // 월별 데이터를 배열로 초기화 (1~12월)
+        // 월별로 데이터 집계
+        $monthlyAggregate = array_fill(0, 12, [
+            'time' => 0,
+            'distance' => 0,
+            'velocity_sum' => 0,
+            'velocity_count' => 0
+        ]);
+        
+        while ($row = mysqli_fetch_assoc($result)) {
+            $month = $row['month'] - 1; // 배열 인덱스는 0부터 시작
+            $timeInSeconds = convertTimeFormatToSeconds($row['exercise_time']); // "분 : 초"를 초로 변환
+            
+            $monthlyAggregate[$month]['time'] += $timeInSeconds;
+            $monthlyAggregate[$month]['distance'] += $row['distance'];
+            
+            if ($row['average_velocity'] > 0) {
+                $monthlyAggregate[$month]['velocity_sum'] += $row['average_velocity'];
+                $monthlyAggregate[$month]['velocity_count']++;
+            }
+        }
+        
+        // 최종 월별 데이터 생성
         $monthlyData = [
             'distance' => array_fill(0, 12, 0),
             'exercise_time' => array_fill(0, 12, 0),
             'average_velocity' => array_fill(0, 12, 0)
         ];
         
-        while ($row = mysqli_fetch_assoc($result)) {
-            $month = $row['month'] - 1; // 배열 인덱스는 0부터 시작
-            
-            $monthlyData['exercise_time'][$month] = round($row['total_time'] / 60, 1); // 초를 분으로 변환
-            $monthlyData['average_velocity'][$month] = round($row['avg_velocity'] ?: 0, 1); // m/s
-            $monthlyData['distance'][$month] = round($row['total_distance'] / 1000, 1); // 미터를 km로 변환
+        for ($i = 0; $i < 12; $i++) {
+            $monthlyData['exercise_time'][$i] = round($monthlyAggregate[$i]['time'] / 60, 1); // 초를 분으로 변환
+            $monthlyData['distance'][$i] = round($monthlyAggregate[$i]['distance'] / 1000, 1); // 미터를 km로 변환
+            $monthlyData['average_velocity'][$i] = $monthlyAggregate[$i]['velocity_count'] > 0
+                ? round($monthlyAggregate[$i]['velocity_sum'] / $monthlyAggregate[$i]['velocity_count'], 1)
+                : 0;
         }
         
         $data = $monthlyData;
@@ -372,13 +412,9 @@ try {
         $firstDayStr = $firstDay->format('Y-m-d');
         $lastDayStr = $lastDay->format('Y-m-d');
 
-        $sql = "SELECT YEAR(SaveTime) as log_year,
-                       SUM(exercise_time) as total_time,
-                       AVG(CASE WHEN average_velocity > 0 THEN average_velocity END) as avg_velocity,
-                       SUM(distance) as total_distance
-                FROM wintech_cycle
+        $sql = "SELECT YEAR(SaveTime) as log_year, exercise_time, average_velocity, distance
+                FROM cycle_distance
                 WHERE name = ? AND DATE(SaveTime) BETWEEN ? AND ?
-                GROUP BY YEAR(SaveTime)
                 ORDER BY YEAR(SaveTime)";
 
         $stmt = mysqli_prepare($conn, $sql);
@@ -387,21 +423,43 @@ try {
 
         $result = mysqli_stmt_get_result($stmt);
 
-        $decadeData = [
-            'distance' => array_fill(0, 10, 0),
-            'exercise_time' => array_fill(0, 10, 0),
-            'average_velocity' => array_fill(0, 10, 0)
-        ];
+        // 연도별로 데이터 집계
+        $yearlyAggregate = array_fill(0, 10, [
+            'time' => 0,
+            'distance' => 0,
+            'velocity_sum' => 0,
+            'velocity_count' => 0
+        ]);
 
         while ($row = mysqli_fetch_assoc($result)) {
             $yearIndex = (int)$row['log_year'] - $startYear;
             if ($yearIndex < 0 || $yearIndex >= 10) {
                 continue;
             }
-
-            $decadeData['exercise_time'][$yearIndex] = round($row['total_time'] / 60, 1); // 분
-            $decadeData['distance'][$yearIndex] = round($row['total_distance'] / 1000, 1); // km
-            $decadeData['average_velocity'][$yearIndex] = round($row['avg_velocity'] ?: 0, 1); // m/s
+            
+            $timeInSeconds = convertTimeFormatToSeconds($row['exercise_time']); // "분 : 초"를 초로 변환
+            $yearlyAggregate[$yearIndex]['time'] += $timeInSeconds;
+            $yearlyAggregate[$yearIndex]['distance'] += $row['distance'];
+            
+            if ($row['average_velocity'] > 0) {
+                $yearlyAggregate[$yearIndex]['velocity_sum'] += $row['average_velocity'];
+                $yearlyAggregate[$yearIndex]['velocity_count']++;
+            }
+        }
+        
+        // 최종 데이터 생성
+        $decadeData = [
+            'distance' => array_fill(0, 10, 0),
+            'exercise_time' => array_fill(0, 10, 0),
+            'average_velocity' => array_fill(0, 10, 0)
+        ];
+        
+        for ($i = 0; $i < 10; $i++) {
+            $decadeData['exercise_time'][$i] = round($yearlyAggregate[$i]['time'] / 60, 1); // 초를 분으로 변환
+            $decadeData['distance'][$i] = round($yearlyAggregate[$i]['distance'] / 1000, 1); // 미터를 km로 변환
+            $decadeData['average_velocity'][$i] = $yearlyAggregate[$i]['velocity_count'] > 0
+                ? round($yearlyAggregate[$i]['velocity_sum'] / $yearlyAggregate[$i]['velocity_count'], 1)
+                : 0;
         }
 
         $data = $decadeData;
@@ -448,13 +506,9 @@ try {
         $firstDayStr = $firstDay->format('Y-m-d');
         $lastDayStr = $lastDay->format('Y-m-d');
 
-        $sql = "SELECT YEAR(SaveTime) as log_year,
-                       SUM(exercise_time) as total_time,
-                       AVG(CASE WHEN average_velocity > 0 THEN average_velocity END) as avg_velocity,
-                       SUM(distance) as total_distance
-                FROM wintech_cycle
+        $sql = "SELECT YEAR(SaveTime) as log_year, exercise_time, average_velocity, distance
+                FROM cycle_distance
                 WHERE name = ? AND DATE(SaveTime) BETWEEN ? AND ?
-                GROUP BY YEAR(SaveTime)
                 ORDER BY YEAR(SaveTime)";
 
         $stmt = mysqli_prepare($conn, $sql);
@@ -463,21 +517,43 @@ try {
 
         $result = mysqli_stmt_get_result($stmt);
 
-        $thirtyYearData = [
-            'distance' => array_fill(0, 30, 0),
-            'exercise_time' => array_fill(0, 30, 0),
-            'average_velocity' => array_fill(0, 30, 0)
-        ];
+        // 연도별로 데이터 집계
+        $yearlyAggregate = array_fill(0, 30, [
+            'time' => 0,
+            'distance' => 0,
+            'velocity_sum' => 0,
+            'velocity_count' => 0
+        ]);
 
         while ($row = mysqli_fetch_assoc($result)) {
             $yearIndex = (int)$row['log_year'] - $startYear;
             if ($yearIndex < 0 || $yearIndex >= 30) {
                 continue;
             }
-
-            $thirtyYearData['exercise_time'][$yearIndex] = round($row['total_time'] / 60, 1); // 분
-            $thirtyYearData['distance'][$yearIndex] = round($row['total_distance'] / 1000, 1); // km
-            $thirtyYearData['average_velocity'][$yearIndex] = round($row['avg_velocity'] ?: 0, 1); // m/s
+            
+            $timeInSeconds = convertTimeFormatToSeconds($row['exercise_time']); // "분 : 초"를 초로 변환
+            $yearlyAggregate[$yearIndex]['time'] += $timeInSeconds;
+            $yearlyAggregate[$yearIndex]['distance'] += $row['distance'];
+            
+            if ($row['average_velocity'] > 0) {
+                $yearlyAggregate[$yearIndex]['velocity_sum'] += $row['average_velocity'];
+                $yearlyAggregate[$yearIndex]['velocity_count']++;
+            }
+        }
+        
+        // 최종 데이터 생성
+        $thirtyYearData = [
+            'distance' => array_fill(0, 30, 0),
+            'exercise_time' => array_fill(0, 30, 0),
+            'average_velocity' => array_fill(0, 30, 0)
+        ];
+        
+        for ($i = 0; $i < 30; $i++) {
+            $thirtyYearData['exercise_time'][$i] = round($yearlyAggregate[$i]['time'] / 60, 1); // 초를 분으로 변환
+            $thirtyYearData['distance'][$i] = round($yearlyAggregate[$i]['distance'] / 1000, 1); // 미터를 km로 변환
+            $thirtyYearData['average_velocity'][$i] = $yearlyAggregate[$i]['velocity_count'] > 0
+                ? round($yearlyAggregate[$i]['velocity_sum'] / $yearlyAggregate[$i]['velocity_count'], 1)
+                : 0;
         }
 
         $data = $thirtyYearData;
@@ -538,11 +614,8 @@ try {
             $decadeStartStr = "$decadeStart-01-01";
             $decadeEndStr = "$decadeEnd-12-31";
 
-            $sql = "SELECT 
-                           SUM(exercise_time) as total_time,
-                           AVG(CASE WHEN average_velocity > 0 THEN average_velocity END) as avg_velocity,
-                           SUM(distance) as total_distance
-                    FROM wintech_cycle
+            $sql = "SELECT exercise_time, average_velocity, distance
+                    FROM cycle_distance
                     WHERE name = ? AND DATE(SaveTime) BETWEEN ? AND ?";
 
             $stmt = mysqli_prepare($conn, $sql);
@@ -551,11 +624,27 @@ try {
 
             $result = mysqli_stmt_get_result($stmt);
             
-            if ($row = mysqli_fetch_assoc($result)) {
-                $hundredYearData['exercise_time'][$i] = round(($row['total_time'] ?: 0) / 60, 1); // 분
-                $hundredYearData['distance'][$i] = round(($row['total_distance'] ?: 0) / 1000, 1); // km
-                $hundredYearData['average_velocity'][$i] = round($row['avg_velocity'] ?: 0, 1); // m/s
+            $decadeTime = 0;
+            $decadeDistance = 0;
+            $decadeVelocitySum = 0;
+            $decadeVelocityCount = 0;
+            
+            while ($row = mysqli_fetch_assoc($result)) {
+                $timeInSeconds = convertTimeFormatToSeconds($row['exercise_time']); // "분 : 초"를 초로 변환
+                $decadeTime += $timeInSeconds;
+                $decadeDistance += $row['distance'];
+                
+                if ($row['average_velocity'] > 0) {
+                    $decadeVelocitySum += $row['average_velocity'];
+                    $decadeVelocityCount++;
+                }
             }
+            
+            $hundredYearData['exercise_time'][$i] = round($decadeTime / 60, 1); // 초를 분으로 변환
+            $hundredYearData['distance'][$i] = round($decadeDistance / 1000, 1); // 미터를 km로 변환
+            $hundredYearData['average_velocity'][$i] = $decadeVelocityCount > 0
+                ? round($decadeVelocitySum / $decadeVelocityCount, 1)
+                : 0;
 
             mysqli_stmt_close($stmt);
         }

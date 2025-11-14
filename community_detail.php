@@ -113,7 +113,10 @@ $comments = $commentDAO->getCommentsByPostId($post_id);
                 <div class="comment-form">
                     <form id="commentForm">
                         <div class="form-group">
-                            <textarea name="content" placeholder="댓글을 작성해주세요..." required></textarea>
+                            <label>
+                                댓글 <span class="char-count" id="commentCharCount">0/500</span>
+                            </label>
+                            <textarea id="commentContent" name="content" placeholder="댓글을 작성해주세요..." maxlength="500" required></textarea>
                         </div>
                         <div class="form-actions">
                             <button type="submit" class="comment-submit-btn">

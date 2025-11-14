@@ -21,7 +21,7 @@
                 
                 <div class="footer-right">
                     <div class="kakao-channel">
-                        <div class="kakao-box">
+                        <a href="http://pf.kakao.com/_hrWHn" class="kakao-box" target="_blank" rel="noopener noreferrer">
                             <div class="kakao-content">
                                 <div class="kakao-icon">
                                     <i class="fas fa-comment"></i>
@@ -30,15 +30,12 @@
                                     <span class="kakao-title">카카오톡 채널추가</span>
                                     <div class="kakao-sub">
                                         <i class="fas fa-comment"></i>
-                                        <span>행복운동센터</span>
+                                        <span>Wintech</span>
                                         <i class="fas fa-plus"></i>
                                     </div>
                                 </div>
                             </div>
-                            <div class="qr-code">
-                                <div class="qr-placeholder">QR</div>
-                            </div>
-                        </div>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -64,13 +61,13 @@
             
             <div class="footer-bottom">
                 <div class="social-media">
-                    <a href="#" class="social-link youtube">
+                    <a href="https://www.youtube.com/@조민수-z5u" class="social-link youtube" target="_blank" rel="noopener noreferrer">
                         <i class="fab fa-youtube"></i>
                     </a>
-                    <a href="#" class="social-link instagram">
+                    <a href="https://www.instagram.com/minsu342/" class="social-link instagram" target="_blank" rel="noopener noreferrer">
                         <i class="fab fa-instagram"></i>
                     </a>
-                    <a href="#" class="social-link naver">
+                    <a href="https://blog.naver.com/takuo" class="social-link naver" target="_blank" rel="noopener noreferrer">
                         <span class="naver-n">N</span>
                         <span class="naver-text">블로그</span>
                     </a>

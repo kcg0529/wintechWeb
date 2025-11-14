@@ -1,5 +1,57 @@
 // Smooth scrolling for navigation
 document.addEventListener('DOMContentLoaded', function() {
+    // 슬라이더 텍스트 줄바꿈 및 글자 크기 동적 조정 (최대 2줄)
+    const heroTexts = document.querySelectorAll('.hero-text');
+    heroTexts.forEach(textElement => {
+        const text = textElement.textContent.trim();
+        const screenWidth = window.innerWidth;
+        let fontSize, maxCharsPerLine;
+        
+        // 화면 크기에 따른 기본 설정
+        if (screenWidth <= 480) {
+            fontSize = 1.5;
+            maxCharsPerLine = 11;
+        } else if (screenWidth <= 768) {
+            fontSize = 1.8;
+            maxCharsPerLine = 11;
+        } else {
+            fontSize = 2.5;
+            maxCharsPerLine = 11;
+        }
+        
+        // 텍스트 길이에 따라 글자 크기 추가 조정
+        if (text.length > 40) {
+            fontSize *= 0.72;
+        } else if (text.length > 30) {
+            fontSize *= 0.8;
+        } else if (text.length > 20) {
+            fontSize *= 0.88;
+        }
+        
+        textElement.style.fontSize = fontSize + 'rem';
+        
+        if (text.length > maxCharsPerLine) {
+            const words = text.split(' ');
+            let currentLine = '';
+            let result = '';
+            let lineCount = 0;
+            
+            words.forEach((word, index) => {
+                const testLine = currentLine + (currentLine ? ' ' : '') + word;
+                if (testLine.length > maxCharsPerLine && currentLine && lineCount < 1) {
+                    result += currentLine + '\n';
+                    currentLine = word;
+                    lineCount++;
+                } else {
+                    currentLine = testLine;
+                }
+            });
+            
+            result += currentLine;
+            textElement.textContent = result;
+        }
+    });
+    
     // Add click animation for navigation cards
     const navCards = document.querySelectorAll('.nav-card');
     

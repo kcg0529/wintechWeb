@@ -281,6 +281,21 @@
     margin-bottom: 15px;
 }
 
+.comment-form .form-group label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+}
+
+.comment-form .char-count {
+    font-size: 12px;
+    font-weight: 400;
+    color: #7f8c8d;
+}
+
 .comment-form textarea {
     width: 100%;
     min-height: 100px;

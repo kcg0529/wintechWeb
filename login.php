@@ -12,6 +12,7 @@ include 'header.php';
             <h1 class="login-title">로그인</h1>
             <?php
             $socialErrorMessages = [
+                'email_exists' => '이미 가입된 이메일입니다. 일반 로그인을 이용해주세요.',
                 'naver_not_configured' => '네이버 소셜 로그인 설정이 완료되지 않았습니다. 관리자에게 문의해주세요.',
                 'naver_state_mismatch' => '네이버 로그인 요청이 유효하지 않습니다. 다시 시도해주세요.',
                 'naver_api_failed' => '네이버 로그인 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
@@ -108,34 +109,34 @@ include 'header.php';
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 
 <script>
-// Google 로그인 초기화
+// Google 로그인 초기화 (버튼 렌더링 방식)
 function initGoogleSignIn() {
-    if (typeof google !== 'undefined' && google.accounts) {
+    if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
         google.accounts.id.initialize({
             client_id: '345531153425-c4iplbf8c7f4n74jgnum6s4528urhc6p.apps.googleusercontent.com',
-            callback: handleGoogleSignIn
+            callback: handleGoogleSignIn,
+            use_fedcm_for_prompt: false // FedCM 비활성화
         });
         
-        // 구글 로그인 버튼 클릭 이벤트
+        // 구글 버튼 렌더링
         const googleBtn = document.getElementById('google-signin-button');
         if (googleBtn) {
-            googleBtn.addEventListener('click', function() {
-                // Google One Tap 로그인 프롬프트 표시
-                google.accounts.id.prompt((notification) => {
-                    if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                        // One Tap이 표시되지 않으면 팝업으로 로그인
-                        google.accounts.oauth2.initTokenClient({
-                            client_id: '345531153425-c4iplbf8c7f4n74jgnum6s4528urhc6p.apps.googleusercontent.com',
-                            scope: 'email profile',
-                            callback: function(response) {
-                                // Access token을 받았지만, ID token이 필요하므로 다시 시도
-                                // 대신 직접 로그인 URL로 리다이렉트
-                                window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?client_id=345531153425-c4iplbf8c7f4n74jgnum6s4528urhc6p.apps.googleusercontent.com&redirect_uri=' + encodeURIComponent(window.location.origin + '/google_login_process.php') + '&response_type=code&scope=openid%20email%20profile';
-                            }
-                        }).requestAccessToken();
-                    }
-                });
-            });
+            // 기존 HTML 내용 제거
+            googleBtn.innerHTML = '';
+            
+            // Google 로그인 버튼 렌더링
+            google.accounts.id.renderButton(
+                googleBtn,
+                { 
+                    theme: "outline", 
+                    size: "large",
+                    type: "standard",
+                    text: "signin_with",
+                    shape: "rectangular",
+                    logo_alignment: "left",
+                    width: googleBtn.offsetWidth
+                }
+            );
         }
     } else {
         // Google API가 아직 로드되지 않았으면 재시도
@@ -145,6 +146,11 @@ function initGoogleSignIn() {
 
 // Google 로그인 콜백 처리
 function handleGoogleSignIn(response) {
+    if (!response.credential) {
+        alert('구글 로그인에 실패했습니다. 다시 시도해주세요.');
+        return;
+    }
+    
     // ID 토큰을 서버로 전송
     const form = document.createElement('form');
     form.method = 'POST';

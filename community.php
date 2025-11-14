@@ -166,13 +166,13 @@ try {
         
         <form id="writeForm" class="write-form">
             <div class="form-group">
-                <label for="postTitle">제목</label>
-                <input type="text" id="postTitle" name="title" placeholder="제목을 입력하세요" required>
+                <label for="postTitle">제목 <span class="char-count" id="titleCount">0/100</span></label>
+                <input type="text" id="postTitle" name="title" placeholder="제목을 입력하세요" maxlength="100" required>
             </div>
             
             <div class="form-group">
-                <label for="postContent">내용</label>
-                <textarea id="postContent" name="content" placeholder="내용을 입력하세요" rows="10" required></textarea>
+                <label for="postContent">내용 <span class="char-count" id="contentCount">0/1000</span></label>
+                <textarea id="postContent" name="content" placeholder="내용을 입력하세요" rows="10" maxlength="1000" required></textarea>
             </div>
             
             <div class="form-actions">

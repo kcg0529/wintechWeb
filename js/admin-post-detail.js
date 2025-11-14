@@ -2,7 +2,24 @@
 // post_id는 PHP 변수이므로 인라인 스크립트로 정의해야 함
 // 이 파일은 post_id 없이 동작하는 함수들을 포함
 
+// 댓글 글자 수 카운터 업데이트
+function updateAdminCommentCharCount() {
+    const commentContent = document.getElementById('adminCommentContent');
+    const commentCharCount = document.getElementById('adminCommentCharCount');
+    
+    if (commentContent && commentCharCount) {
+        commentCharCount.textContent = `${commentContent.value.length}/500`;
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+    // 댓글 글자 수 카운터 이벤트 리스너 추가
+    const adminCommentContent = document.getElementById('adminCommentContent');
+    if (adminCommentContent) {
+        adminCommentContent.addEventListener('input', updateAdminCommentCharCount);
+        updateAdminCommentCharCount(); // 초기 카운트 설정
+    }
+    
     // 댓글 작성 폼 제출
     const commentForm = document.getElementById('adminCommentForm');
     if (commentForm) {
@@ -49,9 +66,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const clearCommentBtn = document.getElementById('clearCommentBtn');
     if (clearCommentBtn) {
         clearCommentBtn.addEventListener('click', function() {
-            const contentTextarea = document.querySelector('textarea[name="content"]');
+            const contentTextarea = document.getElementById('adminCommentContent');
             if (contentTextarea) {
                 contentTextarea.value = '';
+                updateAdminCommentCharCount(); // 카운터 업데이트
             }
         });
     }

@@ -375,10 +375,18 @@
 }
 
 .form-group label {
-    display: block;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 8px;
     font-weight: 500;
     color: #2c3e50;
+}
+
+.char-count {
+    font-size: 12px;
+    font-weight: 400;
+    color: #7f8c8d;
 }
 
 .form-group input,

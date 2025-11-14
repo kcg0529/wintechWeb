@@ -25,13 +25,13 @@ if (empty($title) || empty($content)) {
     exit;
 }
 
-if (mb_strlen($title) > 200) {
-    echo json_encode(['success' => false, 'message' => '제목은 200자 이하로 입력해주세요.']);
+if (mb_strlen($title) > 100) {
+    echo json_encode(['success' => false, 'message' => '제목은 100자 이하로 입력해주세요.']);
     exit;
 }
 
-if (mb_strlen($content) > 5000) {
-    echo json_encode(['success' => false, 'message' => '내용은 5000자 이하로 입력해주세요.']);
+if (mb_strlen($content) > 1000) {
+    echo json_encode(['success' => false, 'message' => '내용은 1000자 이하로 입력해주세요.']);
     exit;
 }
 
