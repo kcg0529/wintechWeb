@@ -44,9 +44,10 @@
     gap: 10px;
 }
 
-.notice-board-title i {
-    color: #007bff;
-    font-size: 24px;
+.notice-board-title .section-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
 }
 
 .notice-board-title h1 {
@@ -306,6 +307,11 @@
     color: #333 !important;
     text-decoration: none !important;
 }
+
+
+
+
+
 
 
 

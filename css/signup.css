@@ -25,7 +25,14 @@
     font-size: 32px;
     font-weight: 700;
     color: #333;
+    margin-bottom: 15px;
+}
+
+.signup-subtitle {
+    font-size: 14px;
+    color: #666;
     margin-bottom: 40px;
+    font-weight: 400;
 }
 
 .signup-form {
@@ -163,6 +170,10 @@
     
     .signup-title {
         font-size: 28px;
+    }
+    
+    .signup-subtitle {
+        font-size: 13px;
     }
     
     .form-buttons {

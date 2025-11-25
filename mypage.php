@@ -46,7 +46,7 @@ try {
 
 // 목표 설정
 $targets = [
-    'exercise_time' => 100, // 100분
+    'exercise_hours' => 100, // 100분
     'average_velocity' => 6, // 6km/h
     'distance' => 10000 // 10km (100분 * 6km/h = 600분 = 10시간... 수정 필요)
 ];
@@ -64,13 +64,13 @@ $currentYear = date('Y');
 
 // 현재일 데이터 로드 시도
 $todayStats = [
-    'exercise_time' => 0,
+    'exercise_hours' => 0,
     'average_velocity' => 0,
     'distance' => 0
 ];
 
 $achievementRates = [
-    'exercise_time' => 0,
+    'exercise_hours' => 0,
     'average_velocity' => 0,
     'distance' => 0
 ];
@@ -88,7 +88,12 @@ try {
             include 'DAO/cycle_dao.php';
         }
         
-        $todayDataArray = CycleDAO::getDailyData($_SESSION['email'], $currentDate);
+        $userEmail = $_SESSION['email'];
+        error_log("mypage.php: Loading data for email: " . $userEmail . ", date: " . $currentDate);
+        
+        $todayDataArray = CycleDAO::getDailyData($userEmail, $currentDate);
+        
+        error_log("mypage.php: getDailyData returned " . count($todayDataArray) . " records");
         
         if ($todayDataArray && is_array($todayDataArray) && count($todayDataArray) > 0) {
             
@@ -99,7 +104,7 @@ try {
             $velocityCount = 0;
             
             foreach ($todayDataArray as $index => $data) {
-                $exerciseTime = isset($data['exercise_time']) ? (float)$data['exercise_time'] : 0;
+                $exerciseTime = isset($data['exercise_hours']) ? (float)$data['exercise_hours'] : 0;
                 $averageVelocity = isset($data['average_velocity']) ? (float)$data['average_velocity'] : 0;
                 $distance = isset($data['distance']) ? (float)$data['distance'] : 0;
                 
@@ -120,7 +125,7 @@ try {
             $distance = $totalDistance;
             
             $todayStats = [
-                'exercise_time' => round($exerciseTime / 60, 1), // 초를 분으로 변환
+                'exercise_hours' => round($exerciseTime / 60, 1), // 초를 분으로 변환
                 'average_velocity' => round($averageVelocity, 1), // m/s
                 'distance' => round($distance / 1000, 1) // 미터를 km로 변환
             ];
@@ -131,7 +136,7 @@ try {
             $targetVelocityMs = $targets['average_velocity'] * 1000 / 3600; // 6km/h = 1.67m/s
             
             $achievementRates = [
-                'exercise_time' => min(100, round(($todayStats['exercise_time'] / $targets['exercise_time']) * 100)),
+                'exercise_hours' => min(100, round(($todayStats['exercise_hours'] / $targets['exercise_hours']) * 100)),
                 'average_velocity' => min(100, round(($todayStats['average_velocity'] / $targetVelocityMs) * 100)),
                 'distance' => min(100, round(($todayStats['distance'] / ($targets['distance'] / 1000)) * 100))
             ];
@@ -206,14 +211,14 @@ include 'header.php';
                     <div class="metric-icon time">
                         <i class="fas fa-clock"></i>
                     </div>
-                        <div class="metric-value" id="time-value"><?php echo $todayStats['exercise_time']; ?> Min</div>
+                        <div class="metric-value" id="time-value"><?php echo $todayStats['exercise_hours']; ?> Min</div>
                     <div class="metric-label">운동시간</div>
                     <div class="progress-container" id="time-progress">
                         <div style="width: 40px; height: 120px; background: #f0f0f0; border-radius: 20px; position: relative; margin: 0 auto; border: 2px solid #ddd;">
-                            <div style="width: 100%; height: <?php echo $achievementRates['exercise_time']; ?>%; background: #007bff; border-radius: 20px; position: absolute; bottom: 0; left: 0; min-height: 10px;"></div>
+                            <div style="width: 100%; height: <?php echo $achievementRates['exercise_hours']; ?>%; background: #007bff; border-radius: 20px; position: absolute; bottom: 0; left: 0; min-height: 10px;"></div>
                         </div>
                     </div>
-                    <div class="achievement-rate">목표 달성률 <?php echo $achievementRates['exercise_time']; ?>%</div>
+                    <div class="achievement-rate">목표 달성률 <?php echo $achievementRates['exercise_hours']; ?>%</div>
                 </div>
 
                 <!-- 평균속도 -->
@@ -546,14 +551,14 @@ let currentPeriodLabel = '';
         // 데이터가 없으면 0으로 설정
         if (!data) {
             data = {
-                'exercise_time': 0,
+                'exercise_hours': 0,
                 'average_velocity': 0,
                 'distance': 0
             };
         }
         if (!achievementRates) {
             achievementRates = {
-                'exercise_time': 0,
+                'exercise_hours': 0,
                 'average_velocity': 0,
                 'distance': 0
             };
@@ -577,7 +582,7 @@ let currentPeriodLabel = '';
             case 'day':
                 // 일별 데이터 (실제 DB 데이터 또는 전달받은 데이터)
                 distanceValue.textContent = data.distance + ' Km';
-                timeValue.textContent = data.exercise_time + ' Min';
+                timeValue.textContent = data.exercise_hours + ' Min';
                 speedValue.textContent = data.average_velocity + ' m/s';
                 
                 
@@ -601,7 +606,7 @@ let currentPeriodLabel = '';
                     }
                     const heights = [
                         achievementRates.distance + '%',
-                        achievementRates.exercise_time + '%', 
+                        achievementRates.exercise_hours + '%', 
                         achievementRates.average_velocity + '%'
                     ];
                     const classes = ['distance', 'time', 'speed'];
@@ -616,7 +621,7 @@ let currentPeriodLabel = '';
                 
                 // 목표 달성률 업데이트 (실제 달성률 사용)
                 document.querySelectorAll('.achievement-rate')[0].textContent = '목표 달성률 ' + achievementRates.distance + '%';
-                document.querySelectorAll('.achievement-rate')[1].textContent = '목표 달성률 ' + achievementRates.exercise_time + '%';
+                document.querySelectorAll('.achievement-rate')[1].textContent = '목표 달성률 ' + achievementRates.exercise_hours + '%';
                 document.querySelectorAll('.achievement-rate')[2].textContent = '목표 달성률 ' + achievementRates.average_velocity + '%';
                 
                 // 일간 레이더 그래프 다시 그리기
@@ -628,7 +633,7 @@ let currentPeriodLabel = '';
             case 'week':
                 // 주별 데이터 (실제 DB 데이터 또는 전달받은 데이터)
                 distanceValue.textContent = data.distance + ' Km';
-                timeValue.textContent = data.exercise_time + ' Min';
+                timeValue.textContent = data.exercise_hours + ' Min';
                 speedValue.textContent = data.average_velocity + ' m/s';
                 
                 // 개별 진행률 컨테이너 숨김
@@ -654,21 +659,21 @@ let currentPeriodLabel = '';
                 if (chartWeekSvg) {
                     const weekDailyData = (data && data.daily) ? data.daily : {
                         distance: Array(7).fill(0),
-                        exercise_time: Array(7).fill(0),
+                        exercise_hours: Array(7).fill(0),
                         average_velocity: Array(7).fill(0)
                     };
                     
                     // 일일 목표값
                     const dayTargets = {
                         distance: 10, // km
-                        exercise_time: 100, // 분
+                        exercise_hours: 100, // 분
                         average_velocity: (6 * 1000) / 3600 // m/s
                     };
                     
                     // 달성률로 변환
                     const weekLineData = [
                         weekDailyData.distance.map(val => Math.min(100, Math.round((val / dayTargets.distance) * 100))),
-                        weekDailyData.exercise_time.map(val => Math.min(100, Math.round((val / dayTargets.exercise_time) * 100))),
+                        weekDailyData.exercise_hours.map(val => Math.min(100, Math.round((val / dayTargets.exercise_hours) * 100))),
                         weekDailyData.average_velocity.map(val => Math.min(100, Math.round((val / dayTargets.average_velocity) * 100)))
                     ];
                     const weekColors = ['#28a745', '#007bff', '#ffc107'];
@@ -729,7 +734,7 @@ let currentPeriodLabel = '';
                 const achievementRateElements = document.querySelectorAll('.achievement-rate');
                 if (achievementRates) {
                     if (achievementRateElements[0]) achievementRateElements[0].textContent = `목표 달성률 ${achievementRates.distance}%`;
-                    if (achievementRateElements[1]) achievementRateElements[1].textContent = `목표 달성률 ${achievementRates.exercise_time}%`;
+                    if (achievementRateElements[1]) achievementRateElements[1].textContent = `목표 달성률 ${achievementRates.exercise_hours}%`;
                     if (achievementRateElements[2]) achievementRateElements[2].textContent = `목표 달성률 ${achievementRates.average_velocity}%`;
                 }
                 
@@ -751,7 +756,7 @@ let currentPeriodLabel = '';
                     
                     if (Array.isArray(data.distance)) {
                         totalDistance = data.distance.reduce((sum, val) => sum + val, 0);
-                        totalTime = data.exercise_time.reduce((sum, val) => sum + val, 0);
+                        totalTime = data.exercise_hours.reduce((sum, val) => sum + val, 0);
                         
                         data.average_velocity.forEach(vel => {
                             if (vel > 0) {
@@ -789,7 +794,7 @@ let currentPeriodLabel = '';
                 // DB 데이터 사용 (4주 데이터)
                 const rawData = {
                     distance: data.distance || [0, 0, 0, 0],
-                    exercise_time: data.exercise_time || [0, 0, 0, 0],
+                    exercise_hours: data.exercise_hours || [0, 0, 0, 0],
                     average_velocity: data.average_velocity || [0, 0, 0, 0]
                 };
                 
@@ -797,14 +802,14 @@ let currentPeriodLabel = '';
                 // 주간 목표 (7일 기준)
                 const weekTargets = {
                     distance: 70,  // 10km * 7일 = 70km
-                    exercise_time: 700, // 100분 * 7일 = 700분
+                    exercise_hours: 700, // 100분 * 7일 = 700분
                     average_velocity: 6 // 6km/h (평균)
                 };
                 
                 // 달성률로 변환 (0~100%)
                 const lineData = [
                     rawData.distance.map(val => Math.min(100, Math.round((val / weekTargets.distance) * 100))),
-                    rawData.exercise_time.map(val => Math.min(100, Math.round((val / weekTargets.exercise_time) * 100))),
+                    rawData.exercise_hours.map(val => Math.min(100, Math.round((val / weekTargets.exercise_hours) * 100))),
                     rawData.average_velocity.map(val => Math.min(100, Math.round((val / weekTargets.average_velocity) * 100)))
                 ];
                 const colors = ['#28a745', '#007bff', '#ffc107'];
@@ -856,7 +861,7 @@ let currentPeriodLabel = '';
                 // 목표 달성률 업데이트 (실제 달성률 사용)
                 if (achievementRates) {
                     document.querySelectorAll('.achievement-rate')[0].textContent = '목표 달성률 ' + achievementRates.distance + '%';
-                    document.querySelectorAll('.achievement-rate')[1].textContent = '목표 달성률 ' + achievementRates.exercise_time + '%';
+                    document.querySelectorAll('.achievement-rate')[1].textContent = '목표 달성률 ' + achievementRates.exercise_hours + '%';
                     document.querySelectorAll('.achievement-rate')[2].textContent = '목표 달성률 ' + achievementRates.average_velocity + '%';
                 }
                 
@@ -878,7 +883,7 @@ let currentPeriodLabel = '';
                     
                     if (Array.isArray(data.distance)) {
                         totalDistance = data.distance.reduce((sum, val) => sum + val, 0);
-                        totalTime = data.exercise_time.reduce((sum, val) => sum + val, 0);
+                        totalTime = data.exercise_hours.reduce((sum, val) => sum + val, 0);
                         
                         data.average_velocity.forEach(vel => {
                             if (vel > 0) {
@@ -916,21 +921,21 @@ let currentPeriodLabel = '';
                 // DB 데이터 사용 (12개월 데이터)
                 const rawYearData = {
                     distance: data.distance || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    exercise_time: data.exercise_time || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    exercise_hours: data.exercise_hours || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                     average_velocity: data.average_velocity || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                 };
                 
                 // 월간 목표 (30일 기준)
                 const monthTargets = {
                     distance: 300,  // 10km * 30일 = 300km
-                    exercise_time: 3000, // 100분 * 30일 = 3000분
+                    exercise_hours: 3000, // 100분 * 30일 = 3000분
                     average_velocity: 6 // 6km/h (평균)
                 };
                 
                 // 달성률로 변환 (0~100%)
                 const yearLineData = [
                     rawYearData.distance.map(val => Math.min(100, Math.round((val / monthTargets.distance) * 100))),
-                    rawYearData.exercise_time.map(val => Math.min(100, Math.round((val / monthTargets.exercise_time) * 100))),
+                    rawYearData.exercise_hours.map(val => Math.min(100, Math.round((val / monthTargets.exercise_hours) * 100))),
                     rawYearData.average_velocity.map(val => Math.min(100, Math.round((val / monthTargets.average_velocity) * 100)))
                 ];
                 
@@ -981,7 +986,7 @@ let currentPeriodLabel = '';
                 // 목표 달성률 업데이트 (실제 달성률 사용 또는 기본값)
                 if (achievementRates && achievementRates.distance !== undefined) {
                     document.querySelectorAll('.achievement-rate')[0].textContent = '목표 달성률 ' + achievementRates.distance + '%';
-                    document.querySelectorAll('.achievement-rate')[1].textContent = '목표 달성률 ' + achievementRates.exercise_time + '%';
+                    document.querySelectorAll('.achievement-rate')[1].textContent = '목표 달성률 ' + achievementRates.exercise_hours + '%';
                     document.querySelectorAll('.achievement-rate')[2].textContent = '목표 달성률 ' + achievementRates.average_velocity + '%';
                 } else {
                     document.querySelectorAll('.achievement-rate')[0].textContent = '목표 달성률 42%';
@@ -1004,7 +1009,7 @@ let currentPeriodLabel = '';
 
                     const rawDecadeData = {
                         distance: Array.isArray(data.distance) ? data.distance : Array(10).fill(0),
-                        exercise_time: Array.isArray(data.exercise_time) ? data.exercise_time : Array(10).fill(0),
+                        exercise_hours: Array.isArray(data.exercise_hours) ? data.exercise_hours : Array(10).fill(0),
                         average_velocity: Array.isArray(data.average_velocity) ? data.average_velocity : Array(10).fill(0)
                     };
 
@@ -1017,7 +1022,7 @@ let currentPeriodLabel = '';
                     if (typeof data.total_time === 'number') {
                         totalTimeDecade = data.total_time;
                     } else {
-                        totalTimeDecade = rawDecadeData.exercise_time.reduce((sum, val) => sum + val, 0);
+                        totalTimeDecade = rawDecadeData.exercise_hours.reduce((sum, val) => sum + val, 0);
                     }
 
                     if (typeof data.avg_velocity_total === 'number') {
@@ -1059,13 +1064,13 @@ let currentPeriodLabel = '';
                     if (decadeSvg) {
                         const decadeTargets = {
                             distance: 10 * 365, // 연간 3650km
-                            exercise_time: 100 * 365, // 연간 36500분
+                            exercise_hours: 100 * 365, // 연간 36500분
                             average_velocity: (6 * 1000) / 3600 // m/s
                         };
 
                         const decadeLineData = [
                             rawDecadeData.distance.map(val => Math.min(100, Math.round((val / decadeTargets.distance) * 100))),
-                            rawDecadeData.exercise_time.map(val => Math.min(100, Math.round((val / decadeTargets.exercise_time) * 100))),
+                            rawDecadeData.exercise_hours.map(val => Math.min(100, Math.round((val / decadeTargets.exercise_hours) * 100))),
                             rawDecadeData.average_velocity.map(val => Math.min(100, Math.round((val / decadeTargets.average_velocity) * 100)))
                         ];
 
@@ -1113,7 +1118,7 @@ let currentPeriodLabel = '';
                     const decadeAchievementElements = document.querySelectorAll('.achievement-rate');
                     if (achievementRates) {
                         if (decadeAchievementElements[0]) decadeAchievementElements[0].textContent = `목표 달성률 ${achievementRates.distance}%`;
-                        if (decadeAchievementElements[1]) decadeAchievementElements[1].textContent = `목표 달성률 ${achievementRates.exercise_time}%`;
+                        if (decadeAchievementElements[1]) decadeAchievementElements[1].textContent = `목표 달성률 ${achievementRates.exercise_hours}%`;
                         if (decadeAchievementElements[2]) decadeAchievementElements[2].textContent = `목표 달성률 ${achievementRates.average_velocity}%`;
                     }
                 }
@@ -1132,7 +1137,7 @@ let currentPeriodLabel = '';
 
                     const raw30Data = {
                         distance: Array.isArray(data.distance) ? data.distance : Array(30).fill(0),
-                        exercise_time: Array.isArray(data.exercise_time) ? data.exercise_time : Array(30).fill(0),
+                        exercise_hours: Array.isArray(data.exercise_hours) ? data.exercise_hours : Array(30).fill(0),
                         average_velocity: Array.isArray(data.average_velocity) ? data.average_velocity : Array(30).fill(0)
                     };
 
@@ -1145,7 +1150,7 @@ let currentPeriodLabel = '';
                     if (typeof data.total_time === 'number') {
                         totalTime30 = data.total_time;
                     } else {
-                        totalTime30 = raw30Data.exercise_time.reduce((sum, val) => sum + val, 0);
+                        totalTime30 = raw30Data.exercise_hours.reduce((sum, val) => sum + val, 0);
                     }
 
                     const validVelocities30 = raw30Data.average_velocity.filter(v => v > 0);
@@ -1180,7 +1185,7 @@ let currentPeriodLabel = '';
                         // 30년 목표값 설정
                         const thirtyTargets = {
                             distance: 10 * 365, // 연간 3650km
-                            exercise_time: 100 * 365, // 연간 36500분
+                            exercise_hours: 100 * 365, // 연간 36500분
                             average_velocity: (6 * 1000) / 3600 // m/s
                         };
 
@@ -1209,7 +1214,7 @@ let currentPeriodLabel = '';
                         // 달성률로 변환 (목표 대비 %)
                         const thirtyLineData = [
                             raw30Data.distance.map(val => Math.min(100, Math.round((val / thirtyTargets.distance) * 100))),
-                            raw30Data.exercise_time.map(val => Math.min(100, Math.round((val / thirtyTargets.exercise_time) * 100))),
+                            raw30Data.exercise_hours.map(val => Math.min(100, Math.round((val / thirtyTargets.exercise_hours) * 100))),
                             raw30Data.average_velocity.map(val => Math.min(100, Math.round((val / thirtyTargets.average_velocity) * 100)))
                         ];
                         const thirtyColors = ['#28a745', '#007bff', '#ffc107'];
@@ -1232,7 +1237,7 @@ let currentPeriodLabel = '';
                     const achievement30Elements = document.querySelectorAll('.achievement-rate');
                     if (achievementRates) {
                         if (achievement30Elements[0]) achievement30Elements[0].textContent = `목표 달성률 ${achievementRates.distance}%`;
-                        if (achievement30Elements[1]) achievement30Elements[1].textContent = `목표 달성률 ${achievementRates.exercise_time}%`;
+                        if (achievement30Elements[1]) achievement30Elements[1].textContent = `목표 달성률 ${achievementRates.exercise_hours}%`;
                         if (achievement30Elements[2]) achievement30Elements[2].textContent = `목표 달성률 ${achievementRates.average_velocity}%`;
                     }
                 }
@@ -1250,7 +1255,7 @@ let currentPeriodLabel = '';
 
                     const raw100Data = {
                         distance: Array.isArray(data.distance) ? data.distance : Array(10).fill(0),
-                        exercise_time: Array.isArray(data.exercise_time) ? data.exercise_time : Array(10).fill(0),
+                        exercise_hours: Array.isArray(data.exercise_hours) ? data.exercise_hours : Array(10).fill(0),
                         average_velocity: Array.isArray(data.average_velocity) ? data.average_velocity : Array(10).fill(0)
                     };
 
@@ -1263,7 +1268,7 @@ let currentPeriodLabel = '';
                     if (typeof data.total_time === 'number') {
                         totalTime100 = data.total_time;
                     } else {
-                        totalTime100 = raw100Data.exercise_time.reduce((sum, val) => sum + val, 0);
+                        totalTime100 = raw100Data.exercise_hours.reduce((sum, val) => sum + val, 0);
                     }
 
                     const validVelocities100 = raw100Data.average_velocity.filter(v => v > 0);
@@ -1299,7 +1304,7 @@ let currentPeriodLabel = '';
                         // 100년 목표값 설정
                         const hundredTargets = {
                             distance: 10 * 365 * 10, // 10년치 거리 × 10
-                            exercise_time: 100 * 365 * 10, // 10년치 시간 × 10
+                            exercise_hours: 100 * 365 * 10, // 10년치 시간 × 10
                             average_velocity: (6 * 1000) / 3600 // m/s
                         };
 
@@ -1324,7 +1329,7 @@ let currentPeriodLabel = '';
                         // 달성률로 변환 (목표 대비 %)
                         const hundredLineData = [
                             raw100Data.distance.map(val => Math.min(100, Math.round((val / hundredTargets.distance) * 100))),
-                            raw100Data.exercise_time.map(val => Math.min(100, Math.round((val / hundredTargets.exercise_time) * 100))),
+                            raw100Data.exercise_hours.map(val => Math.min(100, Math.round((val / hundredTargets.exercise_hours) * 100))),
                             raw100Data.average_velocity.map(val => Math.min(100, Math.round((val / hundredTargets.average_velocity) * 100)))
                         ];
                         const hundredColors = ['#28a745', '#007bff', '#ffc107'];
@@ -1347,7 +1352,7 @@ let currentPeriodLabel = '';
                     const achievement100Elements = document.querySelectorAll('.achievement-rate');
                     if (achievementRates) {
                         if (achievement100Elements[0]) achievement100Elements[0].textContent = `목표 달성률 ${achievementRates.distance}%`;
-                        if (achievement100Elements[1]) achievement100Elements[1].textContent = `목표 달성률 ${achievementRates.exercise_time}%`;
+                        if (achievement100Elements[1]) achievement100Elements[1].textContent = `목표 달성률 ${achievementRates.exercise_hours}%`;
                         if (achievement100Elements[2]) achievement100Elements[2].textContent = `목표 달성률 ${achievementRates.average_velocity}%`;
                     }
                 }
@@ -1410,7 +1415,7 @@ let currentPeriodLabel = '';
             distanceValue.textContent = todayStats.distance + ' Km';
         }
         if (timeValue) {
-            timeValue.textContent = todayStats.exercise_time + ' Min';
+            timeValue.textContent = todayStats.exercise_hours + ' Min';
         }
         if (speedValue) {
             speedValue.textContent = todayStats.average_velocity + ' m/s';
@@ -1426,7 +1431,7 @@ let currentPeriodLabel = '';
             
             const heights = [
                 achievementRates.distance + '%',
-                achievementRates.exercise_time + '%',
+                achievementRates.exercise_hours + '%',
                 achievementRates.average_velocity + '%'
             ];
             const colors = ['#28a745', '#007bff', '#ffc107'];
@@ -1449,7 +1454,7 @@ let currentPeriodLabel = '';
             achievementRateElements[0].textContent = '목표 달성률 ' + achievementRates.distance + '%';
         }
         if (achievementRateElements[1]) {
-            achievementRateElements[1].textContent = '목표 달성률 ' + achievementRates.exercise_time + '%';
+            achievementRateElements[1].textContent = '목표 달성률 ' + achievementRates.exercise_hours + '%';
         }
         if (achievementRateElements[2]) {
             achievementRateElements[2].textContent = '목표 달성률 ' + achievementRates.average_velocity + '%';
@@ -1510,52 +1515,52 @@ let currentPeriodLabel = '';
         // 기간에 따른 데이터 선택
         let exerciseTime, avgSpeed;
         
-        if (period === 'day' && data && data.exercise_time !== undefined && data.average_velocity !== undefined) {
+        if (period === 'day' && data && data.exercise_hours !== undefined && data.average_velocity !== undefined) {
             // 일간: 전달받은 날짜별 데이터 사용
-            exerciseTime = data.exercise_time; // 분
+            exerciseTime = data.exercise_hours; // 분
             avgSpeed = data.average_velocity; // m/s
         } else if (period === 'day') {
             // 일간 데이터가 없으면 todayStats 사용 (초기 로드 시)
-            exerciseTime = todayStats.exercise_time; // 분
+            exerciseTime = todayStats.exercise_hours; // 분
             avgSpeed = todayStats.average_velocity; // m/s
-        } else if (data && data.exercise_time !== undefined && data.average_velocity !== undefined) {
+        } else if (data && data.exercise_hours !== undefined && data.average_velocity !== undefined) {
             if (period === 'week') {
                 // 주간: 총 운동시간과 평균속도 사용
-                exerciseTime = data.exercise_time; // 주간 총 운동시간 (분)
+                exerciseTime = data.exercise_hours; // 주간 총 운동시간 (분)
                 avgSpeed = data.average_velocity; // 주간 평균속도 (m/s)
             } else if (period === 'month') {
                 // 월간: 4주 데이터의 총합 사용
-                if (Array.isArray(data.exercise_time)) {
-                    exerciseTime = data.exercise_time.reduce((sum, val) => sum + val, 0); // 4주 총합
+                if (Array.isArray(data.exercise_hours)) {
+                    exerciseTime = data.exercise_hours.reduce((sum, val) => sum + val, 0); // 4주 총합
                     // 평균속도는 각 주의 평균속도의 평균
                     const validVelocities = data.average_velocity.filter(v => v > 0);
                     avgSpeed = validVelocities.length > 0 
                         ? validVelocities.reduce((sum, val) => sum + val, 0) / validVelocities.length 
                         : 0;
                 } else {
-                    exerciseTime = data.exercise_time; // 월간 총합
+                    exerciseTime = data.exercise_hours; // 월간 총합
                     avgSpeed = data.average_velocity; // 월간 평균속도
                 }
             } else if (period === 'year') {
                 // 년간: 12개월 데이터의 총합 사용
-                if (Array.isArray(data.exercise_time)) {
-                    exerciseTime = data.exercise_time.reduce((sum, val) => sum + val, 0); // 12개월 총합
+                if (Array.isArray(data.exercise_hours)) {
+                    exerciseTime = data.exercise_hours.reduce((sum, val) => sum + val, 0); // 12개월 총합
                     // 평균속도는 각 월의 평균속도의 평균
                     const validVelocities = data.average_velocity.filter(v => v > 0);
                     avgSpeed = validVelocities.length > 0 
                         ? validVelocities.reduce((sum, val) => sum + val, 0) / validVelocities.length 
                         : 0;
                 } else {
-                    exerciseTime = data.exercise_time; // 년간 총합
+                    exerciseTime = data.exercise_hours; // 년간 총합
                     avgSpeed = data.average_velocity; // 년간 평균속도
                 }
             } else if (period === '10year') {
-                if (data && Array.isArray(data.exercise_time)) {
-                    exerciseTime = data.exercise_time.reduce((sum, val) => sum + val, 0);
+                if (data && Array.isArray(data.exercise_hours)) {
+                    exerciseTime = data.exercise_hours.reduce((sum, val) => sum + val, 0);
                 } else if (data && typeof data.total_time === 'number') {
                     exerciseTime = data.total_time;
                 } else {
-                    exerciseTime = todayStats.exercise_time * 3650; // 기본값
+                    exerciseTime = todayStats.exercise_hours * 3650; // 기본값
                 }
 
                 if (data && Array.isArray(data.average_velocity)) {
@@ -1569,12 +1574,12 @@ let currentPeriodLabel = '';
                     avgSpeed = todayStats.average_velocity;
                 }
             } else if (period === '30year') {
-                if (data && Array.isArray(data.exercise_time)) {
-                    exerciseTime = data.exercise_time.reduce((sum, val) => sum + val, 0);
+                if (data && Array.isArray(data.exercise_hours)) {
+                    exerciseTime = data.exercise_hours.reduce((sum, val) => sum + val, 0);
                 } else if (data && typeof data.total_time === 'number') {
                     exerciseTime = data.total_time;
                 } else {
-                    exerciseTime = todayStats.exercise_time * 10950; // 기본값 (30년)
+                    exerciseTime = todayStats.exercise_hours * 10950; // 기본값 (30년)
                 }
 
                 if (data && Array.isArray(data.average_velocity)) {
@@ -1588,12 +1593,12 @@ let currentPeriodLabel = '';
                     avgSpeed = todayStats.average_velocity;
                 }
             } else if (period === '100year') {
-                if (data && Array.isArray(data.exercise_time)) {
-                    exerciseTime = data.exercise_time.reduce((sum, val) => sum + val, 0);
+                if (data && Array.isArray(data.exercise_hours)) {
+                    exerciseTime = data.exercise_hours.reduce((sum, val) => sum + val, 0);
                 } else if (data && typeof data.total_time === 'number') {
                     exerciseTime = data.total_time;
                 } else {
-                    exerciseTime = todayStats.exercise_time * 36500; // 기본값 (100년)
+                    exerciseTime = todayStats.exercise_hours * 36500; // 기본값 (100년)
                 }
 
                 if (data && Array.isArray(data.average_velocity)) {
@@ -1609,7 +1614,7 @@ let currentPeriodLabel = '';
             }
         } else {
             // 기본값 사용
-            exerciseTime = todayStats.exercise_time;
+            exerciseTime = todayStats.exercise_hours;
             avgSpeed = todayStats.average_velocity;
         }
         

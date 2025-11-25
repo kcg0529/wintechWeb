@@ -12,24 +12,24 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-if (!isset($_POST['save_time']) || empty($_POST['save_time']) || !isset($_POST['name']) || empty($_POST['name'])) {
+if (!isset($_POST['save_time']) || empty($_POST['save_time']) || !isset($_POST['email']) || empty($_POST['email'])) {
     echo json_encode(['success' => false, 'message' => '필수 정보가 누락되었습니다.']);
     exit;
 }
 
-$save_time = $_POST['save_time'];
-$name = $_POST['name'];
+$saveTime = trim($_POST['save_time']);
+$email = trim($_POST['email']);
 
 try {
     // 사이클 데이터 존재 확인
-    $cycle = CycleDAO::getCycleByIdentifier($save_time, $name);
+    $cycle = CycleDAO::getCycleByIdentifier($saveTime, $email);
     if (!$cycle) {
         echo json_encode(['success' => false, 'message' => '존재하지 않는 사이클 데이터입니다.']);
         exit;
     }
     
     // 사이클 데이터 삭제
-    if (CycleDAO::deleteCycle($save_time, $name)) {
+    if (CycleDAO::deleteCycle($saveTime, $email)) {
         echo json_encode(['success' => true, 'message' => '사이클 데이터가 성공적으로 삭제되었습니다.']);
     } else {
         echo json_encode(['success' => false, 'message' => '사이클 데이터 삭제 중 오류가 발생했습니다.']);

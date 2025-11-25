@@ -51,8 +51,8 @@ $page_title = '공지사항 작성 - 행복운동센터';
                                 <span class="tag-label">[공지사항]</span>
                             </label>
                             <label class="tag-option">
-                                <input type="radio" name="tag" value="[게임]">
-                                <span class="tag-label">[게임]</span>
+                                <input type="radio" name="tag" value="[운동]">
+                                <span class="tag-label">[운동]</span>
                             </label>
                             <label class="tag-option">
                                 <input type="radio" name="tag" value="[AR]">

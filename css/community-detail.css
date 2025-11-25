@@ -45,9 +45,10 @@
     gap: 10px;
 }
 
-.community-detail-title i {
-    color: #007bff;
-    font-size: 24px;
+.community-detail-title .section-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
 }
 
 .community-detail-title h1 {

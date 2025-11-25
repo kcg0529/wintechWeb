@@ -152,8 +152,13 @@ class NoticeDAO {
      */
     public static function parseNoticeTitle($title) {
         if (preg_match('/^\[([^\]]+)\]\s*(.+)/', $title, $matches)) {
+            $tag = $matches[1];
+            // [게임]을 [운동]으로 변환
+            if ($tag === '게임') {
+                $tag = '운동';
+            }
             return [
-                'tag' => '[' . $matches[1] . ']',
+                'tag' => '[' . $tag . ']',
                 'title' => $matches[2]
             ];
         }

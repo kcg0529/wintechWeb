@@ -13,11 +13,22 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $title = isset($_POST['title']) ? trim($_POST['title']) : '';
 $content = isset($_POST['content']) ? trim($_POST['content']) : '';
+$tag = isset($_POST['tag']) ? trim($_POST['tag']) : '';
+
+// 태그 처리: [게임]을 [운동]으로 변환
+if ($tag === '[게임]') {
+    $tag = '[운동]';
+}
+
+// 태그가 있으면 제목 앞에 붙이기
+if (!empty($tag)) {
+    $title = $tag . ' ' . $title;
+}
 
 // 입력값 검증
 $errors = [];
 
-if (empty($title)) {
+if (empty($title) || (empty($tag) && empty(trim(str_replace($tag, '', $title))))) {
     $errors[] = '제목을 입력해주세요.';
 } elseif (strlen($title) > 200) {
     $errors[] = '제목은 200자 이하로 입력해주세요.';

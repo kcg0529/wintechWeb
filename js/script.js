@@ -52,16 +52,47 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Add click animation for navigation cards
+    // Add click animation and center scroll for navigation cards
     const navCards = document.querySelectorAll('.nav-card');
     
     navCards.forEach((card) => {
-        card.addEventListener('click', function() {
-            // Add click animation
-            this.style.transform = 'scale(0.95)';
-            setTimeout(() => {
-                this.style.transform = '';
-            }, 150);
+        card.addEventListener('click', function(e) {
+            // Check if it's an anchor link to a section
+            const href = this.getAttribute('href');
+            if (href && href.startsWith('#')) {
+                e.preventDefault();
+                
+                // Add click animation
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 150);
+                
+                // Get target section
+                const targetId = href.substring(1);
+                const targetSection = document.getElementById(targetId);
+                
+                if (targetSection) {
+                    // Get header height if fixed
+                    const header = document.querySelector('.header');
+                    const headerHeight = header ? header.offsetHeight : 0;
+                    
+                    // Calculate position to center the section
+                    const sectionTop = targetSection.offsetTop;
+                    const sectionHeight = targetSection.offsetHeight;
+                    const windowHeight = window.innerHeight;
+                    
+                    // Calculate scroll position to center the section in viewport
+                    // 섹션의 중앙이 화면 중앙에 오도록 계산
+                    const scrollPosition = sectionTop - (windowHeight / 2) + (sectionHeight / 2);
+                    
+                    // Smooth scroll to centered position
+                    window.scrollTo({
+                        top: Math.max(0, scrollPosition),
+                        behavior: 'smooth'
+                    });
+                }
+            }
         });
     });
     

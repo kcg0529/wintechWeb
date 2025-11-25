@@ -40,23 +40,57 @@ class CycleDAO {
     public static function getDailyData($email, $date) {
         try {
             $conn = getConnection();
+            if (!$conn) {
+                error_log("CycleDAO getDailyData: Database connection failed");
+                return [];
+            }
+            
+            error_log("CycleDAO getDailyData: email=" . $email . ", date=" . $date);
+            
             $stmt = mysqli_prepare($conn, 
-                "SELECT exercise_time, average_velocity, distance 
-                 FROM cycle_distance 
-                 WHERE name = ? AND DATE(SaveTime) = ?"
+                "SELECT exercise_hours, average_velocity, distance 
+                 FROM BedBike 
+                 WHERE email = ? AND DATE(SaveTime) = ?"
             );
+            
+            if (!$stmt) {
+                error_log("CycleDAO getDailyData: mysqli_prepare failed - " . mysqli_error($conn));
+                mysqli_close($conn);
+                return [];
+            }
+            
             mysqli_stmt_bind_param($stmt, "ss", $email, $date);
-            mysqli_stmt_execute($stmt);
+            $executeResult = mysqli_stmt_execute($stmt);
+            
+            if (!$executeResult) {
+                error_log("CycleDAO getDailyData: mysqli_stmt_execute failed - " . mysqli_error($conn));
+                mysqli_stmt_close($stmt);
+                mysqli_close($conn);
+                return [];
+            }
+            
             $result = mysqli_stmt_get_result($stmt);
             
+            if (!$result) {
+                error_log("CycleDAO getDailyData: mysqli_stmt_get_result failed - " . mysqli_error($conn));
+                mysqli_stmt_close($stmt);
+                mysqli_close($conn);
+                return [];
+            }
+            
             $data = [];
+            $rowCount = 0;
             while ($row = mysqli_fetch_assoc($result)) {
+                $rowCount++;
+                error_log("CycleDAO getDailyData: Found row " . $rowCount . " - exercise_hours=" . $row['exercise_hours'] . ", distance=" . $row['distance']);
                 $data[] = [
-                    'exercise_time' => self::convertTimeFormatToSeconds($row['exercise_time']), // "분 : 초"를 초로 변환
+                    'exercise_hours' => self::convertTimeFormatToSeconds($row['exercise_hours']), // "분 : 초"를 초로 변환
                     'average_velocity' => $row['average_velocity'], // m/s 단위
                     'distance' => $row['distance'] // 미터 단위
                 ];
             }
+            
+            error_log("CycleDAO getDailyData: Total rows found: " . $rowCount);
             
             mysqli_stmt_close($stmt);
             mysqli_close($conn);
@@ -72,19 +106,38 @@ class CycleDAO {
     public static function getWeeklyData($email, $startDate, $endDate) {
         try {
             $conn = getConnection();
+            if (!$conn) {
+                error_log("CycleDAO getWeeklyData: Database connection failed");
+                return [];
+            }
+            
             $stmt = mysqli_prepare($conn, 
-                "SELECT exercise_time, average_velocity, distance 
-                 FROM cycle_distance 
-                 WHERE name = ? AND DATE(SaveTime) BETWEEN ? AND ?"
+                "SELECT exercise_hours, average_velocity, distance 
+                 FROM BedBike 
+                 WHERE email = ? AND DATE(SaveTime) BETWEEN ? AND ?"
             );
+            
+            if (!$stmt) {
+                error_log("CycleDAO getWeeklyData: mysqli_prepare failed - " . mysqli_error($conn));
+                mysqli_close($conn);
+                return [];
+            }
+            
             mysqli_stmt_bind_param($stmt, "sss", $email, $startDate, $endDate);
             mysqli_stmt_execute($stmt);
             $result = mysqli_stmt_get_result($stmt);
             
+            if (!$result) {
+                error_log("CycleDAO getWeeklyData: mysqli_stmt_get_result failed - " . mysqli_error($conn));
+                mysqli_stmt_close($stmt);
+                mysqli_close($conn);
+                return [];
+            }
+            
             $data = [];
             while ($row = mysqli_fetch_assoc($result)) {
                 $data[] = [
-                    'exercise_time' => self::convertTimeFormatToSeconds($row['exercise_time']), // "분 : 초"를 초로 변환
+                    'exercise_hours' => self::convertTimeFormatToSeconds($row['exercise_hours']), // "분 : 초"를 초로 변환
                     'average_velocity' => $row['average_velocity'], // m/s 단위
                     'distance' => $row['distance'] // 미터 단위
                 ];
@@ -104,19 +157,38 @@ class CycleDAO {
     public static function getMonthlyData($email, $year, $month) {
         try {
             $conn = getConnection();
+            if (!$conn) {
+                error_log("CycleDAO getMonthlyData: Database connection failed");
+                return [];
+            }
+            
             $stmt = mysqli_prepare($conn, 
-                "SELECT exercise_time, average_velocity, distance 
-                 FROM cycle_distance 
-                 WHERE name = ? AND YEAR(SaveTime) = ? AND MONTH(SaveTime) = ?"
+                "SELECT exercise_hours, average_velocity, distance 
+                 FROM BedBike 
+                 WHERE email = ? AND YEAR(SaveTime) = ? AND MONTH(SaveTime) = ?"
             );
+            
+            if (!$stmt) {
+                error_log("CycleDAO getMonthlyData: mysqli_prepare failed - " . mysqli_error($conn));
+                mysqli_close($conn);
+                return [];
+            }
+            
             mysqli_stmt_bind_param($stmt, "sii", $email, $year, $month);
             mysqli_stmt_execute($stmt);
             $result = mysqli_stmt_get_result($stmt);
             
+            if (!$result) {
+                error_log("CycleDAO getMonthlyData: mysqli_stmt_get_result failed - " . mysqli_error($conn));
+                mysqli_stmt_close($stmt);
+                mysqli_close($conn);
+                return [];
+            }
+            
             $data = [];
             while ($row = mysqli_fetch_assoc($result)) {
                 $data[] = [
-                    'exercise_time' => self::convertTimeFormatToSeconds($row['exercise_time']), // "분 : 초"를 초로 변환
+                    'exercise_hours' => self::convertTimeFormatToSeconds($row['exercise_hours']), // "분 : 초"를 초로 변환
                     'average_velocity' => $row['average_velocity'], // m/s 단위
                     'distance' => $row['distance'] // 미터 단위
                 ];
@@ -136,15 +208,34 @@ class CycleDAO {
     public static function getYearlyData($email, $year) {
         try {
             $conn = getConnection();
+            if (!$conn) {
+                error_log("CycleDAO getYearlyData: Database connection failed");
+                return [];
+            }
+            
             $stmt = mysqli_prepare($conn, 
-                "SELECT MONTH(SaveTime) as month, exercise_time, average_velocity, distance
-                 FROM cycle_distance 
-                 WHERE name = ? AND YEAR(SaveTime) = ? 
+                "SELECT MONTH(SaveTime) as month, exercise_hours, average_velocity, distance
+                 FROM BedBike 
+                 WHERE email = ? AND YEAR(SaveTime) = ? 
                  ORDER BY MONTH(SaveTime)"
             );
+            
+            if (!$stmt) {
+                error_log("CycleDAO getYearlyData: mysqli_prepare failed - " . mysqli_error($conn));
+                mysqli_close($conn);
+                return [];
+            }
+            
             mysqli_stmt_bind_param($stmt, "si", $email, $year);
             mysqli_stmt_execute($stmt);
             $result = mysqli_stmt_get_result($stmt);
+            
+            if (!$result) {
+                error_log("CycleDAO getYearlyData: mysqli_stmt_get_result failed - " . mysqli_error($conn));
+                mysqli_stmt_close($stmt);
+                mysqli_close($conn);
+                return [];
+            }
             
             // 월별로 데이터 집계
             $monthlyData = array_fill(1, 12, [
@@ -156,7 +247,7 @@ class CycleDAO {
             
             while ($row = mysqli_fetch_assoc($result)) {
                 $month = (int)$row['month'];
-                $timeInSeconds = self::convertTimeFormatToSeconds($row['exercise_time']);
+                $timeInSeconds = self::convertTimeFormatToSeconds($row['exercise_hours']);
                 
                 $monthlyData[$month]['total_time'] += $timeInSeconds;
                 $monthlyData[$month]['velocity_sum'] += $row['average_velocity'];

@@ -14,7 +14,7 @@
                         <p><strong>사업자등록번호:</strong> 00-00-00000</p>
                         <p><strong>통신판매업신고:</strong> </p>
                         <p><strong>주소:</strong> (21546)인천광역시 남동구 백범로 281번길 5 어울림 Bldg.</p>
-                        <p><strong>전화:</strong> 032-248-5730</p>
+                        <p><strong>전화:</strong> 010-9981-9028</p>
                         <p><strong>메일:</strong> takuo2@empal.com</p>
                     </div>
                 </div>

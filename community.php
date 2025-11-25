@@ -76,7 +76,7 @@ try {
                     <?php endif; ?>
                 </div>
                 <div class="community-title">
-                    <i class="fas fa-comments"></i>
+                    <img src="images/community-icon.png" alt="커뮤니티" class="section-icon">
                     <h1>커뮤니티</h1>
                 </div>
             </div>

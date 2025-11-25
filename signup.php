@@ -11,6 +11,7 @@ include 'header.php';
         <!-- 회원가입 폼 -->
         <div class="signup-form-container">
             <h1 class="signup-title">회원가입</h1>
+            <p class="signup-subtitle">네이버, 카카오, 구글 로그인도 가능합니다.</p>
             
             <form class="signup-form" action="signup_process.php" method="POST">
                 <div class="form-row">

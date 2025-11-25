@@ -5,19 +5,36 @@ class ContentDAO {
     
     /**
      * 태그별 콘텐츠 목록 조회
-     * @param string $tag 태그 (VR, AR 또는 게임)
+     * @param string $tag 태그 (VR, AR 또는 운동)
      * @return array 콘텐츠 목록
      */
     public static function getContentsByTag($tag) {
         $conn = getConnection();
-        $query = "SELECT no, tag, title, path, img FROM wintech_content WHERE tag = ? ORDER BY no ASC";
-        $stmt = mysqli_prepare($conn, $query);
-        mysqli_stmt_bind_param($stmt, "s", $tag);
+        
+        // 운동 태그로 조회할 때는 게임, Fun, Work 태그도 함께 조회 (기존 데이터 호환성)
+        if ($tag === '운동') {
+            $query = "SELECT no, tag, title, path, img FROM wintech_content WHERE tag = ? OR tag = ? OR tag = ? OR tag = ? ORDER BY no ASC";
+            $stmt = mysqli_prepare($conn, $query);
+            $tagParam = '운동';
+            $gameTagParam = '게임';
+            $funTagParam = 'Fun';
+            $workTagParam = 'Work';
+            mysqli_stmt_bind_param($stmt, "ssss", $tagParam, $gameTagParam, $funTagParam, $workTagParam);
+        } else {
+            $query = "SELECT no, tag, title, path, img FROM wintech_content WHERE tag = ? ORDER BY no ASC";
+            $stmt = mysqli_prepare($conn, $query);
+            mysqli_stmt_bind_param($stmt, "s", $tag);
+        }
+        
         mysqli_stmt_execute($stmt);
         $result = mysqli_stmt_get_result($stmt);
         
         $contents = [];
         while ($row = mysqli_fetch_assoc($result)) {
+            // 게임, Fun, Work 태그를 운동으로 변환하여 반환
+            if ($row['tag'] === '게임' || $row['tag'] === 'Fun' || $row['tag'] === 'Work') {
+                $row['tag'] = '운동';
+            }
             $contents[] = $row;
         }
         
@@ -38,6 +55,10 @@ class ContentDAO {
         $contents = [];
         if ($result) {
             while ($row = mysqli_fetch_assoc($result)) {
+                // 게임, Fun, Work 태그를 운동으로 변환
+                if ($row['tag'] === '게임' || $row['tag'] === 'Fun' || $row['tag'] === 'Work') {
+                    $row['tag'] = '운동';
+                }
                 $contents[] = $row;
             }
         }
@@ -61,6 +82,10 @@ class ContentDAO {
         
         $content = null;
         if ($row = mysqli_fetch_assoc($result)) {
+            // 게임, Fun, Work 태그를 운동으로 변환
+            if ($row['tag'] === '게임' || $row['tag'] === 'Fun' || $row['tag'] === 'Work') {
+                $row['tag'] = '운동';
+            }
             $content = $row;
         }
         
@@ -106,6 +131,10 @@ class ContentDAO {
         
         $content = null;
         if ($row = mysqli_fetch_assoc($result)) {
+            // 게임, Fun, Work 태그를 운동으로 변환
+            if ($row['tag'] === '게임' || $row['tag'] === 'Fun' || $row['tag'] === 'Work') {
+                $row['tag'] = '운동';
+            }
             $content = $row;
         }
         
@@ -150,6 +179,10 @@ class ContentDAO {
         
         $contents = [];
         while ($row = mysqli_fetch_assoc($result)) {
+            // 게임, Fun, Work 태그를 운동으로 변환
+            if ($row['tag'] === '게임' || $row['tag'] === 'Fun' || $row['tag'] === 'Work') {
+                $row['tag'] = '운동';
+            }
             $contents[] = $row;
         }
         
@@ -173,6 +206,10 @@ class ContentDAO {
         
         $content = null;
         if ($row = mysqli_fetch_assoc($result)) {
+            // 게임, Fun, Work 태그를 운동으로 변환
+            if ($row['tag'] === '게임' || $row['tag'] === 'Fun' || $row['tag'] === 'Work') {
+                $row['tag'] = '운동';
+            }
             $content = $row;
         }
         

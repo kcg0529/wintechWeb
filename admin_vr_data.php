@@ -8,6 +8,11 @@ require_once 'DAO/mysqli_con.php';
 try {
     $conn = getConnection();
     
+    if (!$conn) {
+        error_log("admin_vr_data.php: Database connection failed");
+        throw new Exception("Database connection failed");
+    }
+    
     // 모든 테이블 목록 확인
     $tables_query = "SHOW TABLES";
     $tables_result = mysqli_query($conn, $tables_query);
@@ -17,12 +22,14 @@ try {
             $all_tables[] = $row[0];
         }
     }
+    error_log("admin_vr_data.php: All tables in database: " . implode(', ', $all_tables));
 
     
     require_once 'DAO/CycleDAO.php';
     
     // 테이블 존재 확인
     $table_exists = CycleDAO::tableExists();
+    error_log("admin_vr_data.php: table_exists = " . ($table_exists ? 'true' : 'false'));
     
     $cycle_data = [];
     
@@ -39,70 +46,44 @@ try {
         $search_condition = '';
         if (!empty($search)) {
             $search_escaped = mysqli_real_escape_string($conn, $search);
-            $search_condition = "WHERE (name LIKE '%$search_escaped%' OR exercise_time LIKE '%$search_escaped%' OR average_velocity LIKE '%$search_escaped%' OR distance LIKE '%$search_escaped%')";
+            $search_condition = "WHERE (email LIKE '%$search_escaped%' OR exercise_hours LIKE '%$search_escaped%' OR average_velocity LIKE '%$search_escaped%' OR distance LIKE '%$search_escaped%' OR score LIKE '%$search_escaped%')";
         }
         
         // 전체 데이터 개수 조회 (검색 조건 포함)
         $total_items = CycleDAO::getTotalCycles($search_condition);
+        error_log("admin_vr_data.php: total_items = " . $total_items);
         
         // 총 페이지 수 계산
         $total_pages = ceil($total_items / $items_per_page);
         
         // distance 데이터 조회 (검색 조건 및 페이지네이션 적용)
         $cycle_data = CycleDAO::getCycles($search_condition, $items_per_page, $offset);
+        error_log("admin_vr_data.php: cycle_data count = " . count($cycle_data));
     }
     
     
-    // 통계 데이터 계산
-    $stats = [
-        'total_sessions' => 0,
-        'total_users' => 0,
-        'avg_cycle_time' => 0,
-        'total_distance' => 0
-    ];
+    // 통계 데이터 계산 (DAO 사용)
+    $stats = CycleDAO::getCycleStats();
     
-    // 총 세션 수
-    $count_query = "SELECT COUNT(*) as total FROM cycle_distance";
-    $count_result = mysqli_query($conn, $count_query);
-    if ($count_result) {
-        $count_row = mysqli_fetch_assoc($count_result);
-        $stats['total_sessions'] = $count_row['total'];
-    }
-    
-    // 총 사용자 수 (고유 사용자)
-    $user_query = "SELECT COUNT(DISTINCT name) as total FROM cycle_distance";
-    $user_result = mysqli_query($conn, $user_query);
-    if ($user_result) {
-        $user_row = mysqli_fetch_assoc($user_result);
-        $stats['total_users'] = $user_row['total'];
-    }
-    
-    // 평균 사이클 시간
-    $avg_query = "SELECT AVG(exercise_time) as avg_time FROM cycle_distance";
-    $avg_result = mysqli_query($conn, $avg_query);
-    if ($avg_result) {
-        $avg_row = mysqli_fetch_assoc($avg_result);
-        // exercise_time이 "분 : 초" 형식이므로 초로 변환 후 평균 계산
-        $avg_time_str = $avg_row['avg_time'];
-        if (!empty($avg_time_str)) {
-            // "분 : 초" 형식을 초로 변환하는 함수
-            if (preg_match('/^(\d+)\s*:\s*(\d+)$/', $avg_time_str, $matches)) {
-                $minutes = (int)$matches[1];
-                $seconds = (int)$matches[2];
-                $total_seconds = ($minutes * 60) + $seconds;
-                $stats['avg_cycle_time'] = round($total_seconds / 60, 1); // 분으로 변환
-            } else {
-                $stats['avg_cycle_time'] = round((float)$avg_time_str / 60, 1);
-            }
+    // 평균 사이클 시간 처리 (exercise_hours가 "분 : 초" 형식이므로 변환)
+    if (isset($stats['avg_exercise_time']) && !empty($stats['avg_exercise_time'])) {
+        $avg_time_str = $stats['avg_exercise_time'];
+        // "분 : 초" 형식을 초로 변환하는 함수
+        if (preg_match('/^(\d+)\s*:\s*(\d+)$/', $avg_time_str, $matches)) {
+            $minutes = (int)$matches[1];
+            $seconds = (int)$matches[2];
+            $total_seconds = ($minutes * 60) + $seconds;
+            $stats['avg_cycle_time'] = round($total_seconds / 60, 1); // 분으로 변환
+        } else {
+            $stats['avg_cycle_time'] = round((float)$avg_time_str / 60, 1);
         }
+    } else {
+        $stats['avg_cycle_time'] = 0;
     }
     
-    // 총 거리
-    $distance_query = "SELECT SUM(distance) as total_distance FROM cycle_distance WHERE distance > 0";
-    $distance_result = mysqli_query($conn, $distance_query);
-    if ($distance_result) {
-        $distance_row = mysqli_fetch_assoc($distance_result);
-        $stats['total_distance'] = round($distance_row['total_distance'], 2);
+    // 총 거리 반올림 처리
+    if (isset($stats['total_distance'])) {
+        $stats['total_distance'] = round($stats['total_distance'], 2);
     }
     
     mysqli_close($conn);
@@ -160,7 +141,7 @@ $page_title = 'VR 데이터관리 - 행복운동센터';
                     <form method="GET" style="display:flex;gap:10px;align-items:center;">
                         <input type="hidden" name="per_page" value="<?php echo $items_per_page; ?>">
                         <input type="text" name="search" value="<?php echo htmlspecialchars($search); ?>" 
-                               placeholder="아이디, 운동시간, 평균속도, 거리로 검색..." 
+                               placeholder="아이디, 운동시간, 평균속도, 거리, 스코어로 검색..." 
                                style="flex:1;padding:10px 15px;border:2px solid #ddd;border-radius:5px;font-size:14px;">
                         <button type="submit" style="background:#3498db;color:#fff;padding:10px 20px;border:none;border-radius:5px;cursor:pointer;font-size:14px;">
                             <i class="fas fa-search"></i> 검색
@@ -191,6 +172,7 @@ $page_title = 'VR 데이터관리 - 행복운동센터';
                                 <th>운동시간</th>
                                 <th>평균속도</th>
                                 <th>거리</th>
+                                <th>스코어</th>
                                 <th>관리</th>
                             </tr>
                         </thead>
@@ -198,8 +180,8 @@ $page_title = 'VR 데이터관리 - 행복운동센터';
                             <?php foreach ($cycle_data as $cycle): ?>
                                 <tr>
                                     <td><?php echo htmlspecialchars($cycle['SaveTime']); ?></td>
-                                    <td><?php echo htmlspecialchars($cycle['name']); ?></td>
-                                    <td><?php echo htmlspecialchars($cycle['exercise_time']); ?></td>
+                                    <td><?php echo htmlspecialchars($cycle['email'] ?? $cycle['account'] ?? $cycle['name'] ?? ''); ?></td>
+                                    <td><?php echo htmlspecialchars($cycle['exercise_hours'] ?? $cycle['exercise_time'] ?? ''); ?></td>
                                     <td>
                                         <?php 
                                         $velocity = $cycle['average_velocity'];
@@ -217,7 +199,10 @@ $page_title = 'VR 데이터관리 - 행복운동센터';
                                         ?>
                                     </td>
                                     <td>
-                                        <button class="delete-btn" onclick="deleteCycleData('<?php echo htmlspecialchars($cycle['SaveTime']); ?>', '<?php echo htmlspecialchars($cycle['name']); ?>')">
+                                        <?php echo htmlspecialchars($cycle['score'] ?? ''); ?>
+                                    </td>
+                                    <td>
+                                        <button class="delete-btn" onclick="deleteCycleData('<?php echo htmlspecialchars($cycle['SaveTime'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($cycle['email'] ?? $cycle['account'] ?? $cycle['name'], ENT_QUOTES); ?>')">
                                             <i class="fas fa-trash"></i> 삭제
                                         </button>
                                     </td>

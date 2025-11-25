@@ -38,7 +38,7 @@ $page_title = '콘텐츠 추가 - 행복운동센터';
                             <option value="">태그 선택</option>
                             <option value="VR">VR</option>
                             <option value="AR">AR</option>
-                            <option value="게임">게임</option>
+                            <option value="운동">운동</option>
                         </select>
                     </div>
                     

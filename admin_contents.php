@@ -95,7 +95,14 @@ $page_title = '콘텐츠관리 - 행복운동센터';
                         <tr>
                             <td><?php echo htmlspecialchars($content['no']); ?></td>
                             <td>
-                                <span class="tag-display"><?php echo htmlspecialchars($content['tag']); ?></span>
+                                <?php 
+                                // 게임, Fun, Work 태그를 운동으로 변환하여 표시
+                                $displayTag = $content['tag'];
+                                if ($displayTag === '게임' || $displayTag === 'Fun' || $displayTag === 'Work') {
+                                    $displayTag = '운동';
+                                }
+                                ?>
+                                <span class="tag-display"><?php echo htmlspecialchars($displayTag); ?></span>
                             </td>
                             <td><?php echo htmlspecialchars($content['title']); ?></td>
                             <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">

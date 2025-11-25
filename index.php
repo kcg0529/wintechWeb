@@ -9,11 +9,11 @@ require_once 'profile_check.php';
 // 프로필 정보 완성도 확인
 checkProfileCompletion();
 
-// 공지사항 데이터 가져오기 (최근 4개)
-$notices = NoticeDAO::getRecentNotices(4);
+// 공지사항 데이터 가져오기 (최근 2개)
+$notices = NoticeDAO::getRecentNotices(5);
 
 // 콘텐츠 데이터 가져오기
-$funContents = ContentDAO::getContentsByTag('게임');
+$funContents = ContentDAO::getContentsByTag('운동');
 $vrContents = ContentDAO::getContentsByTag('VR');
 $arContents = ContentDAO::getContentsByTag('AR');
 
@@ -289,12 +289,26 @@ if ($content_type !== 'main') {
                                 </div>
                                 <span class="card-text">공지사항</span>
                             </a>
+                            <a href="community.php" class="nav-card">
+                                <div class="card-icon">
+                                    <img src="images/community-icon.png" alt="커뮤니티" class="card-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                    <i class="fas fa-comments fallback-icon" style="display: none;"></i>
+                                </div>
+                                <span class="card-text">커뮤니티</span>
+                            </a>
                             <a href="#fun-section" class="nav-card">
                                 <div class="card-icon">
-                                    <img src="images/game-icon.png" alt="게임" class="card-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                    <img src="images/game-icon.png" alt="운동" class="card-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                     <i class="fas fa-gamepad fallback-icon" style="display: none;"></i>
                                 </div>
-                                <span class="card-text">게임</span>
+                                <span class="card-text">운동</span>
+                            </a>
+                            <a href="#shop-section" class="nav-card nav-card-shop">
+                                <div class="card-icon">
+                                    <img src="images/shop-icon.png" alt="쇼핑" class="card-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                    <i class="fas fa-shopping-cart fallback-icon" style="display: none;"></i>
+                                </div>
+                                <span class="card-text">쇼핑</span>
                             </a>
                             <a href="#ar-section" class="nav-card">
                                 <div class="card-icon">
@@ -309,20 +323,6 @@ if ($content_type !== 'main') {
                                     <i class="fas fa-vr-cardboard fallback-icon" style="display: none;"></i>
                                 </div>
                                 <span class="card-text">VR</span>
-                            </a>
-                            <a href="community.php" class="nav-card">
-                                <div class="card-icon">
-                                    <img src="images/community-icon.png" alt="커뮤니티" class="card-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                    <i class="fas fa-comments fallback-icon" style="display: none;"></i>
-                                </div>
-                                <span class="card-text">커뮤니티</span>
-                            </a>
-                            <a href="#" class="nav-card nav-card-shop">
-                                <div class="card-icon">
-                                    <img src="images/shop-icon.png" alt="쇼핑" class="card-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                    <i class="fas fa-shopping-cart fallback-icon" style="display: none;"></i>
-                                </div>
-                                <span class="card-text">쇼핑</span>
                             </a>
                         </div>
                     </div>
@@ -344,8 +344,11 @@ if ($content_type !== 'main') {
                                 자세히보기
                             </a>
                             <div class="notice-title">
-                                <i class="fas fa-bullhorn"></i>
-                                <h1>공지사항</h1>
+                                <img src="images/notice-icon.png" alt="공지사항" class="section-icon">
+                                <div class="notice-title-text-wrapper">
+                                    <h1>공지사항</h1>
+                                    <p class="notice-subtitle">새로운 소식을 알려드립니다.</p>
+                                </div>
                             </div>
                         </div>
                         
@@ -362,15 +365,29 @@ if ($content_type !== 'main') {
                                     // NEW 딱지 기준: 3일 이내 작성된 공지사항
                                     $noticeTime = strtotime($notice['date']);
                                     $isNew = (time() - $noticeTime) <= (3 * 24 * 60 * 60); // 3일 = 3 * 24시간 * 60분 * 60초
+                                    
+                                    // 날짜를 일(day)과 년.월 형식으로 분리
+                                    $dateObj = new DateTime($notice['date']);
+                                    $day = $dateObj->format('d'); // 일 (30, 18 등)
+                                    $yearMonth = $dateObj->format('Y.m'); // 년.월 (2025.09 등)
                                     ?>
-                                    <div class="notice-item">
-                                        <div class="notice-info">
-                                            <span class="notice-date"><?php echo htmlspecialchars($formatted_date); ?></span>
-                                            <?php if ($tag): ?>
-                                                <span class="notice-category"><?php echo htmlspecialchars($tag); ?></span>
-                                            <?php endif; ?>
-                                            <a href="notice_detail.php?id=<?php echo $notice['no']; ?>" class="notice-title-link">
-                                                <?php echo htmlspecialchars($title); ?>
+                                    <div class="notice-card">
+                                        <div class="notice-date-section">
+                                            <div class="notice-day"><?php echo htmlspecialchars($day); ?></div>
+                                            <div class="notice-year-month"><?php echo htmlspecialchars($yearMonth); ?></div>
+                                        </div>
+                                        <div class="notice-card-content">
+                                            <a href="notice_detail.php?id=<?php echo $notice['no']; ?>" class="notice-card-link">
+                                                <div class="notice-card-title">
+                                                    <?php if ($tag): ?>
+                                                        <?php 
+                                                        // 태그에서 대괄호 제거 (이미 parseNoticeTitle에서 대괄호가 포함되어 있음)
+                                                        $cleanTag = trim($tag, '[]');
+                                                        ?>
+                                                        <span class="notice-card-tag">[<?php echo htmlspecialchars($cleanTag); ?>]</span>
+                                                    <?php endif; ?>
+                                                    <?php echo htmlspecialchars($title); ?>
+                                                </div>
                                             </a>
                                         </div>
                                         <?php if ($isNew): ?>
@@ -379,9 +396,9 @@ if ($content_type !== 'main') {
                                     </div>
                                 <?php endforeach; ?>
                             <?php else: ?>
-                                <div class="notice-item">
-                                    <div class="notice-info">
-                                        <span class="notice-title-text">등록된 공지사항이 없습니다.</span>
+                                <div class="notice-card">
+                                    <div class="notice-card-content">
+                                        <div class="notice-card-title">등록된 공지사항이 없습니다.</div>
                                     </div>
                                 </div>
                             <?php endif; ?>
@@ -392,13 +409,13 @@ if ($content_type !== 'main') {
         <?php endif; ?>
 
         <?php if ($content_type === 'main'): ?>
-            <!-- 게임 Section -->
+            <!-- 운동 Section -->
             <section id="fun-section" class="fun-section">
                 <div class="fun-container">
                     <div class="fun-header">
                         <div class="fun-title">
-                            <i class="fas fa-gamepad"></i>
-                            <h2>게임</h2>
+                            <img src="images/game-icon.png" alt="운동" class="section-icon">
+                            <h2>운동</h2>
                         </div>
                         <div class="fun-divider"></div>
                     </div>
@@ -443,7 +460,7 @@ if ($content_type !== 'main') {
                                     }
                                 }
                                 $imgSrc = !empty($content['img']) ? 'images/' . htmlspecialchars($content['img']) : 'images/pic02.jpg';
-                                $imgAlt = !empty($content['title']) ? htmlspecialchars($content['title']) : '게임';
+                                $imgAlt = !empty($content['title']) ? htmlspecialchars($content['title']) : '운동';
                                 ?>
                                 <div class="<?php echo $slideClass; ?>" onclick="setActiveSlide(<?php echo $index; ?>)">
                                     <a href="<?php echo $linkHref; ?>" class="fun-slide-link">
@@ -455,12 +472,12 @@ if ($content_type !== 'main') {
                             <!-- 기본 콘텐츠 (데이터가 없을 경우) -->
                             <div class="fun-slide" onclick="setActiveSlide(0)">
                                 <a href="index.php?content=minigame" class="fun-slide-link">
-                                    <img src="images/minigame.png" alt="게임" class="fun-image">
+                                    <img src="images/minigame.png" alt="운동" class="fun-image">
                                 </a>
                             </div>
                             <div class="fun-slide active" onclick="setActiveSlide(1)">
                                 <a href="index.php?content=kid_quiz" class="fun-slide-link">
-                                    <img src="images/Kid_Quiz.jpg" alt="퀴즈 게임" class="fun-image">
+                                    <img src="images/Kid_Quiz.jpg" alt="퀴즈 운동" class="fun-image">
                                 </a>
                             </div>
                         <?php endif; ?>
@@ -475,149 +492,12 @@ if ($content_type !== 'main') {
                 </div>
             </section>
 
-            <!-- AR Section -->
-            <section id="ar-section" class="ar-section">
-                <div class="ar-container">
-                    <div class="ar-header">
-                        <div class="ar-title">
-                            <i class="fas fa-mobile-alt"></i>
-                            <h2>AR</h2>
-                        </div>
-                        <div class="ar-divider"></div>
-                    </div>
-                    <div class="ar-slider">
-                        <?php if (!empty($arContents)): ?>
-                            <?php foreach ($arContents as $index => $content): ?>
-                                <?php 
-                                // path를 index.php?content= 형식으로 변환
-                                $linkHref = '#';
-                                if (!empty($content['path'])) {
-                                    // path가 "index.php?content=xxx" 형식이면 그대로 사용
-                                    if (strpos($content['path'], 'index.php?content=') !== false) {
-                                        $linkHref = htmlspecialchars($content['path']);
-                                    }
-                                    // path가 폴더명 형식 (예: "road/", "minigame/", "새게임/")이면 변환
-                                    elseif (preg_match('/^([^\/\?]+)\/?$/', $content['path'], $matches)) {
-                                        $folderName = $matches[1];
-                                        // 기존 게임 매핑 (특수 케이스)
-                                        $contentMapping = [
-                                            'road' => 'unity_road',
-                                            'minigame' => 'minigame',
-                                            'Kid_Quiz' => 'kid_quiz'
-                                        ];
-                                        // 매핑이 있으면 사용, 없으면 폴더명을 그대로 사용
-                                        $contentParam = isset($contentMapping[$folderName]) ? $contentMapping[$folderName] : $folderName;
-                                        $linkHref = 'index.php?content=' . $contentParam;
-                                    }
-                                    // 그 외는 그대로 사용
-                                    else {
-                                        $linkHref = htmlspecialchars($content['path']);
-                                    }
-                                }
-                                $imgSrc = !empty($content['img']) ? 'images/' . htmlspecialchars($content['img']) : 'images/pic01.jpg';
-                                $imgAlt = !empty($content['title']) ? htmlspecialchars($content['title']) : 'AR Content';
-                                ?>
-                                <div class="ar-slide" onclick="setActiveArSlide(<?php echo $index; ?>)">
-                                    <a href="<?php echo $linkHref; ?>" class="ar-slide-link">
-                                        <img src="<?php echo $imgSrc; ?>" alt="<?php echo $imgAlt; ?>" class="ar-image">
-                                    </a>
-                                </div>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <!-- 기본 콘텐츠 (데이터가 없을 경우) -->
-                            <div class="ar-slide" onclick="setActiveArSlide(0)">
-                                <a href="#" class="ar-slide-link">
-                                    <img src="images/pic01.jpg" alt="AR Content 1" class="ar-image">
-                                </a>
-                            </div>
-                        <?php endif; ?>
-                        <button class="ar-nav prev" onclick="changeArSlide(-1)">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                        <button class="ar-nav next" onclick="changeArSlide(1)">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- VR Section -->
-            <section id="vr-section" class="vr-section">
-                <div class="vr-container">
-                    <div class="vr-header">
-                        <div class="vr-title">
-                            <i class="fas fa-vr-cardboard"></i>
-                            <h2>VR</h2>
-                        </div>
-                        <div class="vr-divider"></div>
-                    </div>
-                    <div class="vr-slider">
-                        <?php if (!empty($vrContents)): ?>
-                            <?php foreach ($vrContents as $index => $content): ?>
-                                <?php 
-                                // path를 index.php?content= 형식으로 변환
-                                $linkHref = '#';
-                                if (!empty($content['path'])) {
-                                    // path가 "index.php?content=xxx" 형식이면 그대로 사용
-                                    if (strpos($content['path'], 'index.php?content=') !== false) {
-                                        $linkHref = htmlspecialchars($content['path']);
-                                    }
-                                    // path가 폴더명 형식 (예: "road/", "minigame/", "새게임/")이면 변환
-                                    elseif (preg_match('/^([^\/\?]+)\/?$/', $content['path'], $matches)) {
-                                        $folderName = $matches[1];
-                                        // 기존 게임 매핑 (특수 케이스)
-                                        $contentMapping = [
-                                            'road' => 'unity_road',
-                                            'minigame' => 'minigame',
-                                            'Kid_Quiz' => 'kid_quiz'
-                                        ];
-                                        // 매핑이 있으면 사용, 없으면 폴더명을 그대로 사용
-                                        $contentParam = isset($contentMapping[$folderName]) ? $contentMapping[$folderName] : $folderName;
-                                        $linkHref = 'index.php?content=' . $contentParam;
-                                    }
-                                    // 그 외는 그대로 사용
-                                    else {
-                                        $linkHref = htmlspecialchars($content['path']);
-                                    }
-                                }
-                                $imgSrc = !empty($content['img']) ? 'images/' . htmlspecialchars($content['img']) : 'images/pic01.jpg';
-                                $imgAlt = !empty($content['title']) ? htmlspecialchars($content['title']) : 'VR Content';
-                                ?>
-                                <div class="vr-slide" onclick="setActiveVrSlide(<?php echo $index; ?>)">
-                                    <a href="<?php echo $linkHref; ?>" class="vr-slide-link">
-                                        <img src="<?php echo $imgSrc; ?>" alt="<?php echo $imgAlt; ?>" class="vr-image">
-                                    </a>
-                                </div>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <!-- 기본 콘텐츠 (데이터가 없을 경우) -->
-                            <div class="vr-slide" onclick="setActiveVrSlide(0)">
-                                <a href="#" class="vr-slide-link">
-                                    <img src="images/pic01.jpg" alt="VR Content 1" class="vr-image">
-                                </a>
-                            </div>
-                            <div class="vr-slide" onclick="setActiveVrSlide(1)">
-                                <a href="index.php?content=unity_road" class="vr-slide-link">
-                                    <img src="images/road.jpg" alt="VR Content 2" class="vr-image">
-                                </a>
-                            </div>
-                        <?php endif; ?>
-                        <button class="vr-nav prev" onclick="changeVrSlide(-1)">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                        <button class="vr-nav next" onclick="changeVrSlide(1)">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
-                    </div>
-                </div>
-            </section>
-
             <!-- Shop Section -->
             <section id="shop-section" class="shop-section">
                 <div class="shop-container">
                     <div class="shop-header">
                         <div class="shop-title">
-                            <i class="fas fa-shopping-cart"></i>
+                            <img src="images/shop-icon.png" alt="쇼핑" class="section-icon">
                             <h2>쇼핑</h2>
                         </div>
                         <div class="shop-divider"></div>
@@ -704,6 +584,143 @@ if ($content_type !== 'main') {
                             <i class="fas fa-chevron-left"></i>
                         </button>
                         <button class="shop-nav next" onclick="changeShopSlide(1)">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AR Section -->
+            <section id="ar-section" class="ar-section">
+                <div class="ar-container">
+                    <div class="ar-header">
+                        <div class="ar-title">
+                            <img src="images/ar-icon.png" alt="AR" class="section-icon">
+                            <h2>AR</h2>
+                        </div>
+                        <div class="ar-divider"></div>
+                    </div>
+                    <div class="ar-slider">
+                        <?php if (!empty($arContents)): ?>
+                            <?php foreach ($arContents as $index => $content): ?>
+                                <?php 
+                                // path를 index.php?content= 형식으로 변환
+                                $linkHref = '#';
+                                if (!empty($content['path'])) {
+                                    // path가 "index.php?content=xxx" 형식이면 그대로 사용
+                                    if (strpos($content['path'], 'index.php?content=') !== false) {
+                                        $linkHref = htmlspecialchars($content['path']);
+                                    }
+                                    // path가 폴더명 형식 (예: "road/", "minigame/", "새게임/")이면 변환
+                                    elseif (preg_match('/^([^\/\?]+)\/?$/', $content['path'], $matches)) {
+                                        $folderName = $matches[1];
+                                        // 기존 게임 매핑 (특수 케이스)
+                                        $contentMapping = [
+                                            'road' => 'unity_road',
+                                            'minigame' => 'minigame',
+                                            'Kid_Quiz' => 'kid_quiz'
+                                        ];
+                                        // 매핑이 있으면 사용, 없으면 폴더명을 그대로 사용
+                                        $contentParam = isset($contentMapping[$folderName]) ? $contentMapping[$folderName] : $folderName;
+                                        $linkHref = 'index.php?content=' . $contentParam;
+                                    }
+                                    // 그 외는 그대로 사용
+                                    else {
+                                        $linkHref = htmlspecialchars($content['path']);
+                                    }
+                                }
+                                $imgSrc = !empty($content['img']) ? 'images/' . htmlspecialchars($content['img']) : 'images/pic01.jpg';
+                                $imgAlt = !empty($content['title']) ? htmlspecialchars($content['title']) : 'AR Content';
+                                ?>
+                                <div class="ar-slide" onclick="setActiveArSlide(<?php echo $index; ?>)">
+                                    <a href="<?php echo $linkHref; ?>" class="ar-slide-link">
+                                        <img src="<?php echo $imgSrc; ?>" alt="<?php echo $imgAlt; ?>" class="ar-image">
+                                    </a>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <!-- 기본 콘텐츠 (데이터가 없을 경우) -->
+                            <div class="ar-slide" onclick="setActiveArSlide(0)">
+                                <a href="#" class="ar-slide-link">
+                                    <img src="images/pic01.jpg" alt="AR Content 1" class="ar-image">
+                                </a>
+                            </div>
+                        <?php endif; ?>
+                        <button class="ar-nav prev" onclick="changeArSlide(-1)">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="ar-nav next" onclick="changeArSlide(1)">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VR Section -->
+            <section id="vr-section" class="vr-section">
+                <div class="vr-container">
+                    <div class="vr-header">
+                        <div class="vr-title">
+                            <img src="images/vr-icon.png" alt="VR" class="section-icon">
+                            <h2>VR</h2>
+                        </div>
+                        <div class="vr-divider"></div>
+                    </div>
+                    <div class="vr-slider">
+                        <?php if (!empty($vrContents)): ?>
+                            <?php foreach ($vrContents as $index => $content): ?>
+                                <?php 
+                                // path를 index.php?content= 형식으로 변환
+                                $linkHref = '#';
+                                if (!empty($content['path'])) {
+                                    // path가 "index.php?content=xxx" 형식이면 그대로 사용
+                                    if (strpos($content['path'], 'index.php?content=') !== false) {
+                                        $linkHref = htmlspecialchars($content['path']);
+                                    }
+                                    // path가 폴더명 형식 (예: "road/", "minigame/", "새게임/")이면 변환
+                                    elseif (preg_match('/^([^\/\?]+)\/?$/', $content['path'], $matches)) {
+                                        $folderName = $matches[1];
+                                        // 기존 게임 매핑 (특수 케이스)
+                                        $contentMapping = [
+                                            'road' => 'unity_road',
+                                            'minigame' => 'minigame',
+                                            'Kid_Quiz' => 'kid_quiz'
+                                        ];
+                                        // 매핑이 있으면 사용, 없으면 폴더명을 그대로 사용
+                                        $contentParam = isset($contentMapping[$folderName]) ? $contentMapping[$folderName] : $folderName;
+                                        $linkHref = 'index.php?content=' . $contentParam;
+                                    }
+                                    // 그 외는 그대로 사용
+                                    else {
+                                        $linkHref = htmlspecialchars($content['path']);
+                                    }
+                                }
+                                $imgSrc = !empty($content['img']) ? 'images/' . htmlspecialchars($content['img']) : 'images/pic01.jpg';
+                                $imgAlt = !empty($content['title']) ? htmlspecialchars($content['title']) : 'VR Content';
+                                ?>
+                                <div class="vr-slide" onclick="setActiveVrSlide(<?php echo $index; ?>)">
+                                    <a href="<?php echo $linkHref; ?>" class="vr-slide-link">
+                                        <img src="<?php echo $imgSrc; ?>" alt="<?php echo $imgAlt; ?>" class="vr-image">
+                                    </a>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <!-- 기본 콘텐츠 (데이터가 없을 경우) -->
+                            <div class="vr-slide" onclick="setActiveVrSlide(0)">
+                                <a href="#" class="vr-slide-link">
+                                    <img src="images/pic01.jpg" alt="VR Content 1" class="vr-image">
+                                </a>
+                            </div>
+                            <div class="vr-slide" onclick="setActiveVrSlide(1)">
+                                <a href="index.php?content=unity_road" class="vr-slide-link">
+                                    <img src="images/road.jpg" alt="VR Content 2" class="vr-image">
+                                </a>
+                            </div>
+                        <?php endif; ?>
+                        <button class="vr-nav prev" onclick="changeVrSlide(-1)">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="vr-nav next" onclick="changeVrSlide(1)">
                             <i class="fas fa-chevron-right"></i>
                         </button>
                     </div>

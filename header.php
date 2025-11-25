@@ -19,7 +19,7 @@ if (session_status() === PHP_SESSION_NONE) {
             <div class="logo-section">
                 <a href="index.php" class="logo-link">
                     <div class="logo-icon">
-                        <i class="fas fa-heart"></i>
+                        <img src="images/headicon.png" alt="행복운동센터" class="logo-icon-img">
                     </div>
                     <h1 class="logo-text">행복운동센터</h1>
                 </a>

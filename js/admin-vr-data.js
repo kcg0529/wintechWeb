@@ -13,12 +13,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// 사이클 데이터 삭제 함수 (SaveTime과 name으로 식별)
-function deleteCycleData(saveTime, name) {
+// 사이클 데이터 삭제 함수 (SaveTime과 email로 식별)
+function deleteCycleData(saveTime, email) {
     if (confirm('정말로 이 사이클 데이터를 삭제하시겠습니까?')) {
         const formData = new URLSearchParams();
         formData.append('save_time', saveTime);
-        formData.append('name', name);
+        formData.append('email', email);
         
         fetch('admin_cycle_delete.php', {
             method: 'POST',

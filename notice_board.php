@@ -39,7 +39,7 @@ $endPage = min($totalPages, $page + 2);
                     <i class="fas fa-arrow-left"></i>
                 </button>
                 <div class="notice-board-title">
-                    <i class="fas fa-bullhorn"></i>
+                    <img src="images/notice-icon.png" alt="공지사항" class="section-icon">
                     <h1>공지사항</h1>
                 </div>
                 <div class="notice-board-stats">

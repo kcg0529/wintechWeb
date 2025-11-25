@@ -54,9 +54,9 @@ $page_title = '콘텐츠 수정 - 행복운동센터';
                         </label>
                         <select id="tag" name="tag" class="form-input" required>
                             <option value="">태그 선택</option>
-                            <option value="VR" <?php echo $content['tag'] === 'VR' ? 'selected' : ''; ?>>VR</option>
-                            <option value="AR" <?php echo $content['tag'] === 'AR' ? 'selected' : ''; ?>>AR</option>
-                            <option value="게임" <?php echo $content['tag'] === '게임' ? 'selected' : ''; ?>>게임</option>
+                            <option value="VR" <?php echo ($content['tag'] === 'VR') ? 'selected' : ''; ?>>VR</option>
+                            <option value="AR" <?php echo ($content['tag'] === 'AR') ? 'selected' : ''; ?>>AR</option>
+                            <option value="운동" <?php echo ($content['tag'] === '운동' || $content['tag'] === '게임' || $content['tag'] === 'Fun' || $content['tag'] === 'Work') ? 'selected' : ''; ?>>운동</option>
                         </select>
                     </div>
                     

@@ -102,7 +102,12 @@ $page_title = '공지사항관리 - 행복운동센터';
                                 $displayTitle = $title;
                                 
                                 if (preg_match('/^\[([^\]]+)\]\s*(.+)/', $title, $matches)) {
-                                    $tag = '[' . $matches[1] . ']';
+                                    $tagName = $matches[1];
+                                    // [게임]을 [운동]으로 변환
+                                    if ($tagName === '게임') {
+                                        $tagName = '운동';
+                                    }
+                                    $tag = '[' . $tagName . ']';
                                     $displayTitle = $matches[2]; // 태그를 제외한 제목
                                 }
                                 ?>
