@@ -487,29 +487,80 @@ html {
     }
     
     .notice-header {
-        padding: 0 20px 30px 20px;
+        padding: 0 20px 25px 10px;
         flex-direction: column;
-        gap: 15px;
+        align-items: stretch;
+        position: relative;
+        gap: 12px;
+    }
+    
+    .view-details-btn {
+        position: relative;
+        left: auto;
+        right: auto;
+        top: auto;
+        order: 1;
+        align-self: flex-start;
+        margin: 0;
+        padding: 8px 0;
+        font-size: 13px;
+        white-space: nowrap;
+        flex-shrink: 0;
+        background: transparent;
+        border: none;
+        border-radius: 0;
+    }
+    
+    .notice-title {
+        width: 100%;
+        justify-content: center;
+        gap: 0;
+        order: 2;
+        margin-top: 0;
+        flex-wrap: nowrap;
+    }
+    
+    .notice-title .section-icon {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+        margin-right: 0;
+    }
+    
+    .notice-title-text-wrapper {
+        margin-left: 0;
+        align-items: center;
     }
     
     .notice-title h1 {
-        font-size: 28px;
+        margin-left: 6px;
+        text-align: center;
+        line-height: 1.2;
+    }
+    
+    .notice-title h1 {
+        font-size: 22px;
     }
     
     .notice-subtitle {
-        font-size: 14px;
+        font-size: 12px;
+        text-align: center;
+        padding-left: 0;
     }
     
     .notice-content {
-        padding: 0 20px;
-        gap: 15px;
+        padding: 0 10px;
+        gap: 12px;
+        display: flex;
+        flex-direction: column;
     }
     
     .notice-card {
-        flex-direction: column;
+        flex-direction: row;
         align-items: flex-start;
-        gap: 15px;
-        padding: 20px;
+        gap: 12px;
+        padding: 16px 20px;
+        margin: 0;
     }
     
     .notice-card:nth-child(n+3) {
@@ -517,30 +568,46 @@ html {
     }
     
     .notice-date-section {
-        flex-direction: row;
+        flex-direction: column;
         align-items: center;
-        gap: 10px;
-        min-width: auto;
+        gap: 4px;
+        min-width: 55px;
+        flex-shrink: 0;
+        padding-top: 2px;
     }
     
     .notice-day {
-        font-size: 36px;
+        font-size: 30px;
         margin-bottom: 0;
+        line-height: 1;
     }
     
     .notice-year-month {
-        font-size: 12px;
+        font-size: 10px;
+        line-height: 1;
+    }
+    
+    .notice-card-content {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        align-items: flex-start;
     }
     
     .notice-card-title {
-        font-size: 16px;
+        font-size: clamp(12px, 3vw, 16px);
+        line-height: 1.4;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
     }
     
     .notice-badge {
-        top: 15px;
-        right: 15px;
-        padding: 4px 10px;
-        font-size: 10px;
+        top: 10px;
+        right: 10px;
+        padding: 3px 7px;
+        font-size: 8px;
     }
     
     .card-icon {
@@ -801,40 +868,126 @@ html {
     }
     
     .notice-header {
-        padding: 0 15px 20px 15px;
+        padding: 0 15px 20px 5px;
+        flex-direction: column;
+        align-items: stretch;
+        position: relative;
+        gap: 10px;
+    }
+    
+    .view-details-btn {
+        position: relative;
+        left: auto;
+        right: auto;
+        top: auto;
+        order: 1;
+        align-self: flex-start;
+        margin: 0;
+        padding: 7px 0;
+        font-size: 12px;
+        white-space: nowrap;
+        flex-shrink: 0;
+        background: transparent;
+        border: none;
+        border-radius: 0;
+    }
+    
+    .notice-title {
+        width: 100%;
+        justify-content: center;
+        gap: 0;
+        order: 2;
+        margin-top: 0;
+        flex-wrap: nowrap;
+    }
+    
+    .notice-title .section-icon {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+        margin-right: 0;
+    }
+    
+    .notice-title-text-wrapper {
+        margin-left: 0;
+        align-items: center;
     }
     
     .notice-title h1 {
-        font-size: 24px;
+        margin-left: 5px;
+        text-align: center;
+        line-height: 1.2;
+    }
+    
+    .notice-title h1 {
+        font-size: 20px;
     }
     
     .notice-subtitle {
-        font-size: 12px;
+        font-size: 11px;
+        text-align: center;
+        padding-left: 0;
     }
     
     .notice-content {
-        padding: 0 15px;
-        gap: 12px;
+        padding: 0 5px;
+        gap: 10px;
+        display: flex;
+        flex-direction: column;
     }
     
     .notice-card {
-        padding: 15px;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 14px 18px;
+        margin: 0;
     }
     
     .notice-card:nth-child(n+3) {
         display: none;
     }
     
+    .notice-date-section {
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        min-width: 50px;
+        flex-shrink: 0;
+        padding-top: 2px;
+    }
+    
     .notice-day {
-        font-size: 32px;
+        font-size: 26px;
+        line-height: 1;
     }
     
     .notice-year-month {
-        font-size: 11px;
+        font-size: 9px;
+        line-height: 1;
+    }
+    
+    .notice-card-content {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        align-items: flex-start;
     }
     
     .notice-card-title {
-        font-size: 14px;
+        font-size: clamp(11px, 3.5vw, 14px);
+        line-height: 1.4;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+    }
+    
+    .notice-badge {
+        top: 8px;
+        right: 8px;
+        padding: 3px 6px;
+        font-size: 7px;
     }
     
     /* 슬라이더 초소형 화면 스타일 */
@@ -1353,19 +1506,31 @@ html {
 
 .notice-header {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 60px 40px 60px;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0 60px 40px 40px;
     background: transparent;
     position: relative;
+    gap: 12px;
 }
 
 .notice-title {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 0;
     justify-content: center;
     width: 100%;
+    flex-wrap: nowrap;
+    order: 2;
+}
+
+.notice-title .section-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    margin-right: 0;
+    vertical-align: middle;
+    display: inline-block;
 }
 
 .section-icon {
@@ -1375,18 +1540,36 @@ html {
 }
 
 .notice-title-text-wrapper {
-    display: flex;
+    display: inline-flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
+    flex-shrink: 0;
+    margin-left: 0;
+    padding-left: 0;
+    vertical-align: middle;
+}
+
+@media (max-width: 768px) {
+    .notice-title-text-wrapper {
+        gap: 5px;
+    }
+}
+
+@media (max-width: 480px) {
+    .notice-title-text-wrapper {
+        gap: 4px;
+    }
 }
 
 .notice-title h1 {
     font-size: 36px;
     color: #333;
-    margin: 0;
+    margin: 0 0 0 6px;
+    padding: 0;
     font-weight: 700;
     text-align: center;
+    line-height: 1.2;
 }
 
 .notice-subtitle {
@@ -1395,6 +1578,7 @@ html {
     margin: 0;
     text-align: center;
     font-weight: 400;
+    padding-left: 0;
 }
 
 .view-details-btn {
@@ -1404,16 +1588,17 @@ html {
     background: transparent;
     border: none;
     color: #999;
-    padding: 8px 16px;
-    border-radius: 6px;
+    padding: 8px 0;
+    border-radius: 0;
     font-size: 14px;
     cursor: pointer;
     transition: all 0.3s ease;
     font-weight: 500;
     text-decoration: none;
-    position: absolute;
-    left: 60px;
-    top: 0;
+    position: relative;
+    align-self: flex-start;
+    margin: 0;
+    order: 1;
 }
 
 .view-details-btn:hover {
@@ -1426,7 +1611,7 @@ html {
 }
 
 .notice-content {
-    padding: 0 60px;
+    padding: 0 40px;
     background: transparent;
     display: flex;
     flex-direction: column;
@@ -1437,7 +1622,7 @@ html {
     display: flex;
     align-items: center;
     gap: 30px;
-    padding: 25px 30px;
+    padding: 25px 40px;
     background: #fff;
     border-radius: 12px;
     border: 1px solid #e0e0e0;
@@ -1477,20 +1662,26 @@ html {
 .notice-card-content {
     flex: 1;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
 }
 
 .notice-card-link {
     text-decoration: none;
     color: inherit;
     width: 100%;
+    display: block;
+    overflow: hidden;
 }
 
 .notice-card-title {
     color: #333;
-    font-size: 18px;
+    font-size: clamp(14px, 2vw, 18px);
     font-weight: 500;
-    line-height: 1.5;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
 }
 
 .notice-card-tag {
