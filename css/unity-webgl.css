@@ -166,6 +166,11 @@ div.webgl-content div.footer {
     background: transparent center no-repeat;
 }
 
+.webgl-content .footer .fullscreen {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
 /* Road Unity 스타일 */
 .webgl-content .footer.road-footer .webgl-logo {
     background-image: url('../road/TemplateData/webgl-logo.png');
@@ -242,7 +247,7 @@ div.webgl-content div.footer {
     }
     
     .unity-content-area {
-        padding: 20px 20px 30px 20px;
+        padding: 15px 15px 25px 15px;
     }
     
     .unity-webgl-container {
@@ -250,25 +255,70 @@ div.webgl-content div.footer {
     }
     
     .unity-webgl-container .webgl-content {
-        min-height: 438px !important; /* 400px (game) + 38px (footer) */
+        min-height: 288px !important; /* 250px (game) + 38px (footer) */
     }
     
     .unity-webgl-container .webgl-content #unityContainer {
         width: 100% !important;
-        height: 400px;
+        height: 250px !important;
+        min-height: 250px !important;
         max-width: 100% !important;
+    }
+    
+    .unity-webgl-container .webgl-content #unityContainer canvas {
+        min-height: 250px !important;
+        height: 250px !important;
     }
 }
 
 @media (max-width: 480px) {
+    .unity-content {
+        padding: 90px 0 50px;
+    }
+    
+    .unity-container {
+        padding: 0 10px;
+    }
+    
+    .unity-content-area {
+        padding: 10px 10px 20px 10px;
+    }
+    
     .unity-webgl-container .webgl-content {
-        min-height: 338px !important; /* 300px (game) + 38px (footer) */
+        min-height: 238px !important; /* 200px (game) + 38px (footer) */
     }
     
     .unity-webgl-container .webgl-content #unityContainer {
         width: 100% !important;
-        height: 300px;
+        height: 200px !important;
+        min-height: 200px !important;
         max-width: 100% !important;
+    }
+    
+    .unity-webgl-container .webgl-content #unityContainer canvas {
+        min-height: 200px !important;
+        height: 200px !important;
+    }
+    
+    .webgl-content .footer {
+        height: 32px !important;
+        min-height: 32px !important;
+    }
+    
+    .webgl-content .footer .title {
+        font-size: 14px;
+        line-height: 32px;
+    }
+    
+    /* 모바일에서 전체화면 버튼 터치 영역 확대 */
+    .webgl-content .footer .fullscreen {
+        width: 48px !important;
+        height: 48px !important;
+        min-width: 48px !important;
+        min-height: 48px !important;
+        padding: 8px !important;
+        box-sizing: border-box !important;
+        margin: -8px !important;
     }
 }
 

@@ -169,7 +169,7 @@ if ($content_type !== 'main') {
                                 <div id="unityContainer"></div>
                                 <div class="footer <?php echo $unityFolder; ?>-footer">
                                     <div class="webgl-logo"></div>
-                                    <div class="fullscreen" onclick="unityInstance.SetFullscreen(1)"></div>
+                                    <div class="fullscreen" data-fullscreen-btn></div>
                                     <div class="title"><?php echo $unityTitle; ?></div>
                                 </div>
                             </div>
@@ -194,10 +194,12 @@ if ($content_type !== 'main') {
                 <?php else: ?>
                     console.error('Unity JSON file not found');
                 <?php endif; ?>
-                // Unity 로드 후 스타일 강제 적용
+                // Unity 로드 후 스타일 강제 적용 및 전체화면 버튼 설정
                 setTimeout(function() {
                     var webglContent = document.querySelector('.webgl-content');
                     var unityContainer = document.querySelector('#unityContainer');
+                    var fullscreenBtn = document.querySelector('[data-fullscreen-btn]');
+                    
                     if (webglContent) {
                         webglContent.style.position = 'relative';
                         webglContent.style.top = 'auto';
@@ -208,15 +210,42 @@ if ($content_type !== 'main') {
                         webglContent.style.minHeight = 'auto';
                     }
                     if (unityContainer) {
-                        unityContainer.style.height = 'auto';
-                        unityContainer.style.minHeight = '600px';
-                        // Unity 컨테이너의 실제 높이 확인 후 조정
-                        setTimeout(function() {
-                            var containerHeight = unityContainer.scrollHeight;
-                            if (containerHeight > 600) {
-                                unityContainer.style.height = containerHeight + 'px';
+                        // 모바일 환경 감지
+                        var isMobile = window.innerWidth <= 768;
+                        var isSmallMobile = window.innerWidth <= 480;
+                        
+                        if (isSmallMobile) {
+                            unityContainer.style.height = '200px';
+                            unityContainer.style.minHeight = '200px';
+                        } else if (isMobile) {
+                            unityContainer.style.height = '250px';
+                            unityContainer.style.minHeight = '250px';
+                        } else {
+                            unityContainer.style.height = 'auto';
+                            unityContainer.style.minHeight = '600px';
+                            // Unity 컨테이너의 실제 높이 확인 후 조정
+                            setTimeout(function() {
+                                var containerHeight = unityContainer.scrollHeight;
+                                if (containerHeight > 600) {
+                                    unityContainer.style.height = containerHeight + 'px';
+                                }
+                            }, 500);
+                        }
+                    }
+                    
+                    // 전체화면 버튼 이벤트 (모바일 터치 지원)
+                    if (fullscreenBtn && typeof unityInstance !== 'undefined') {
+                        function goFullscreen() {
+                            if (unityInstance && unityInstance.SetFullscreen) {
+                                unityInstance.SetFullscreen(1);
                             }
-                        }, 500);
+                        }
+                        // 클릭과 터치 모두 지원
+                        fullscreenBtn.addEventListener('click', goFullscreen);
+                        fullscreenBtn.addEventListener('touchstart', function(e) {
+                            e.preventDefault();
+                            goFullscreen();
+                        });
                     }
                 }, 100);
             </script>
