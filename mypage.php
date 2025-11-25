@@ -1396,20 +1396,45 @@ let currentPeriodLabel = '';
                 e.preventDefault();
                 e.stopPropagation();
                 
-                if (isNavigating) return; // 중복 클릭 방지
+                // 이미 활성화된 버튼을 다시 클릭하면 무시
+                if (this.classList.contains('active')) {
+                    return;
+                }
                 
-                // 모든 버튼 비활성화
-                document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+                // 중복 클릭 방지
+                if (isNavigating) {
+                    return;
+                }
+                
+                const period = this.dataset.period;
+                
+                // 같은 기간이면 무시
+                if (currentPeriod === period && !isNavigating) {
+                    return;
+                }
+                
+                // 모든 버튼 비활성화 및 클릭 방지
+                document.querySelectorAll('.period-btn').forEach(b => {
+                    b.classList.remove('active');
+                    b.style.pointerEvents = 'none'; // 클릭 방지
+                });
+                
                 // 현재 버튼 활성화
                 this.classList.add('active');
                 
                 // 기간에 따른 날짜 범위 업데이트
-                const period = this.dataset.period;
                 currentPeriod = period;
                 currentDate = '<?php echo date('Y-m-d'); ?>'; // 현재 날짜로 초기화
                 
-                // 데이터 로드 (내부에서 날짜 표시 업데이트됨)
-                await updateMetricsDataWithDate(period, currentDate);
+                try {
+                    // 데이터 로드 (내부에서 날짜 표시 업데이트됨)
+                    await updateMetricsDataWithDate(period, currentDate);
+                } finally {
+                    // 모든 버튼 다시 활성화
+                    document.querySelectorAll('.period-btn').forEach(b => {
+                        b.style.pointerEvents = 'auto';
+                    });
+                }
             };
         }
         
@@ -1492,18 +1517,50 @@ let currentPeriodLabel = '';
                 left: async function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    if (isNavigating) return; // 중복 클릭 방지
                     
-                    const newDate = getPrevDate(currentDate, currentPeriod);
-                    await updateMetricsDataWithDate(currentPeriod, newDate);
+                    // 중복 클릭 방지
+                    if (isNavigating) {
+                        return;
+                    }
+                    
+                    // 버튼 일시 비활성화
+                    const leftBtn = document.querySelector('.nav-arrow.left');
+                    const rightBtn = document.querySelector('.nav-arrow.right');
+                    if (leftBtn) leftBtn.style.pointerEvents = 'none';
+                    if (rightBtn) rightBtn.style.pointerEvents = 'none';
+                    
+                    try {
+                        const newDate = getPrevDate(currentDate, currentPeriod);
+                        await updateMetricsDataWithDate(currentPeriod, newDate);
+                    } finally {
+                        // 버튼 다시 활성화
+                        if (leftBtn) leftBtn.style.pointerEvents = 'auto';
+                        if (rightBtn) rightBtn.style.pointerEvents = 'auto';
+                    }
                 },
                 right: async function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    if (isNavigating) return; // 중복 클릭 방지
                     
-                    const newDate = getNextDate(currentDate, currentPeriod);
-                    await updateMetricsDataWithDate(currentPeriod, newDate);
+                    // 중복 클릭 방지
+                    if (isNavigating) {
+                        return;
+                    }
+                    
+                    // 버튼 일시 비활성화
+                    const leftBtn = document.querySelector('.nav-arrow.left');
+                    const rightBtn = document.querySelector('.nav-arrow.right');
+                    if (leftBtn) leftBtn.style.pointerEvents = 'none';
+                    if (rightBtn) rightBtn.style.pointerEvents = 'none';
+                    
+                    try {
+                        const newDate = getNextDate(currentDate, currentPeriod);
+                        await updateMetricsDataWithDate(currentPeriod, newDate);
+                    } finally {
+                        // 버튼 다시 활성화
+                        if (leftBtn) leftBtn.style.pointerEvents = 'auto';
+                        if (rightBtn) rightBtn.style.pointerEvents = 'auto';
+                    }
                 }
             };
         }
