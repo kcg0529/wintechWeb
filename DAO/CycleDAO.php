@@ -28,6 +28,7 @@ class CycleDAO {
     
     /**
      * 사이클 데이터 목록 조회 (페이지네이션 적용)
+     * wintech_account 테이블과 JOIN하여 생년월일 정보 포함
      */
     public static function getCycles($search_condition = '', $limit = 10, $offset = 0) {
         $conn = getConnection();
@@ -35,7 +36,13 @@ class CycleDAO {
             error_log("CycleDAO getCycles: Database connection failed");
             return [];
         }
-        $query = "SELECT * FROM BedBike $search_condition ORDER BY SaveTime DESC LIMIT $limit OFFSET $offset";
+        // wintech_account 테이블과 LEFT JOIN하여 생년월일 가져오기
+        $query = "SELECT BedBike.*, wintech_account.birthday 
+                  FROM BedBike 
+                  LEFT JOIN wintech_account ON BedBike.email = wintech_account.account 
+                  $search_condition 
+                  ORDER BY BedBike.SaveTime DESC 
+                  LIMIT $limit OFFSET $offset";
         error_log("CycleDAO getCycles: Query = " . $query);
         $result = mysqli_query($conn, $query);
         $cycles = [];

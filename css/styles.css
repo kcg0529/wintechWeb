@@ -397,8 +397,8 @@ html {
 }
 
 .card-icon {
-    width: 80px;
-    height: 80px;
+    width: 60px;
+    height: 60px;
     margin: 0 auto 12px;
     display: flex;
     align-items: center;
@@ -544,8 +544,8 @@ html {
     }
     
     .card-icon {
-        width: 70px;
-        height: 70px;
+        width: 55px;
+        height: 55px;
         margin: 0 auto 10px;
     }
     
@@ -787,8 +787,8 @@ html {
     }
     
     .card-icon {
-        width: 60px;
-        height: 60px;
+        width: 50px;
+        height: 50px;
         margin: 0 auto 8px;
     }
     
@@ -1369,8 +1369,8 @@ html {
 }
 
 .section-icon {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     object-fit: contain;
 }
 
@@ -1570,8 +1570,8 @@ html {
 }
 
 .fun-title .section-icon {
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
     object-fit: contain;
 }
 
@@ -1710,8 +1710,8 @@ html {
 }
 
 .ar-title .section-icon {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     object-fit: contain;
 }
 
@@ -1749,8 +1749,8 @@ html {
 }
 
 .vr-title .section-icon {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     object-fit: contain;
 }
 
@@ -1998,8 +1998,8 @@ html {
 }
 
 .shop-title .section-icon {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     object-fit: contain;
 }
 

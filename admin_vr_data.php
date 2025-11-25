@@ -42,15 +42,27 @@ try {
     $total_pages = 0;
     
     if ($table_exists) {
-        // 검색어 처리
+        // 검색어 처리 (wintech_account 테이블과 JOIN하므로 WHERE 절 수정)
         $search_condition = '';
         if (!empty($search)) {
             $search_escaped = mysqli_real_escape_string($conn, $search);
-            $search_condition = "WHERE (email LIKE '%$search_escaped%' OR exercise_hours LIKE '%$search_escaped%' OR average_velocity LIKE '%$search_escaped%' OR distance LIKE '%$search_escaped%' OR score LIKE '%$search_escaped%')";
+            $search_condition = "WHERE (BedBike.email LIKE '%$search_escaped%' OR BedBike.exercise_hours LIKE '%$search_escaped%' OR BedBike.average_velocity LIKE '%$search_escaped%' OR BedBike.distance LIKE '%$search_escaped%' OR BedBike.score LIKE '%$search_escaped%' OR wintech_account.birthday LIKE '%$search_escaped%')";
         }
         
-        // 전체 데이터 개수 조회 (검색 조건 포함)
-        $total_items = CycleDAO::getTotalCycles($search_condition);
+        // 전체 데이터 개수 조회 (검색 조건 포함, JOIN 고려)
+        if (!empty($search_condition)) {
+            // JOIN이 포함된 쿼리로 카운트
+            $count_query = "SELECT COUNT(*) as total FROM BedBike LEFT JOIN wintech_account ON BedBike.email = wintech_account.account $search_condition";
+            $count_result = mysqli_query($conn, $count_query);
+            if ($count_result) {
+                $row = mysqli_fetch_assoc($count_result);
+                $total_items = $row['total'] ?? 0;
+            } else {
+                $total_items = CycleDAO::getTotalCycles($search_condition);
+            }
+        } else {
+            $total_items = CycleDAO::getTotalCycles($search_condition);
+        }
         error_log("admin_vr_data.php: total_items = " . $total_items);
         
         // 총 페이지 수 계산
@@ -141,7 +153,7 @@ $page_title = 'VR 데이터관리 - 행복운동센터';
                     <form method="GET" style="display:flex;gap:10px;align-items:center;">
                         <input type="hidden" name="per_page" value="<?php echo $items_per_page; ?>">
                         <input type="text" name="search" value="<?php echo htmlspecialchars($search); ?>" 
-                               placeholder="아이디, 운동시간, 평균속도, 거리, 스코어로 검색..." 
+                               placeholder="이메일, 생년월일, 운동시간, 평균속도, 거리, 스코어로 검색..." 
                                style="flex:1;padding:10px 15px;border:2px solid #ddd;border-radius:5px;font-size:14px;">
                         <button type="submit" style="background:#3498db;color:#fff;padding:10px 20px;border:none;border-radius:5px;cursor:pointer;font-size:14px;">
                             <i class="fas fa-search"></i> 검색
@@ -168,7 +180,8 @@ $page_title = 'VR 데이터관리 - 행복운동센터';
                         <thead>
                             <tr>
                                 <th>저장시간</th>
-                                <th>아이디</th>
+                                <th>이메일</th>
+                                <th>생년월일</th>
                                 <th>운동시간</th>
                                 <th>평균속도</th>
                                 <th>거리</th>
@@ -181,6 +194,7 @@ $page_title = 'VR 데이터관리 - 행복운동센터';
                                 <tr>
                                     <td><?php echo htmlspecialchars($cycle['SaveTime']); ?></td>
                                     <td><?php echo htmlspecialchars($cycle['email'] ?? $cycle['account'] ?? $cycle['name'] ?? ''); ?></td>
+                                    <td><?php echo htmlspecialchars($cycle['birthday'] ?? '-'); ?></td>
                                     <td><?php echo htmlspecialchars($cycle['exercise_hours'] ?? $cycle['exercise_time'] ?? ''); ?></td>
                                     <td>
                                         <?php 
