@@ -81,7 +81,7 @@ try {
             $data = [
                 'exercise_hours' => round($totalTime / 60, 1), // 초를 분으로 변환
                 'average_velocity' => round($velocitySum / $recordCount, 1),
-                'distance' => round($totalDistance / 1000, 1) // 미터를 km로 변환
+                'distance' => round($totalDistance / 1000, 2) // 미터를 km로 변환 (소수점 두자리)
             ];
             
             // 목표값 단위 변환: 6km/h = 1.67m/s
@@ -166,14 +166,14 @@ try {
             }
         }
         
-        if ($velocityCount > 0 || $totalTime > 0) {
+        if ($velocityCount > 0 || $totalTime > 0 || $totalDistance > 0) {
             $dailyData = [
                 'distance' => [],
                 'exercise_hours' => [],
                 'average_velocity' => []
             ];
             for ($i = 0; $i < 7; $i++) {
-                $dailyData['distance'][] = round($dailyDistance[$i] / 1000, 1);
+                $dailyData['distance'][] = round($dailyDistance[$i] / 1000, 2);
                 $dailyData['exercise_hours'][] = round($dailyTime[$i] / 60, 1);
                 $dailyData['average_velocity'][] = $dailyVelocityCount[$i] > 0 ? round($dailyVelocitySum[$i] / $dailyVelocityCount[$i], 1) : 0;
             }
@@ -181,7 +181,7 @@ try {
             $data = [
                 'exercise_hours' => round($totalTime / 60, 1), // 초를 분으로 변환
                 'average_velocity' => $velocityCount > 0 ? round($velocitySum / $velocityCount, 1) : 0,
-                'distance' => round($totalDistance / 1000, 1), // 미터를 km로 변환
+                'distance' => round($totalDistance / 1000, 2), // 미터를 km로 변환 (소수점 두자리)
                 'daily' => $dailyData
             ];
             
@@ -277,7 +277,7 @@ try {
         ];
         
         foreach ($weeklyData as $week) {
-            $data['distance'][] = round($week['distance'] / 1000, 1); // km
+            $data['distance'][] = round($week['distance'] / 1000, 2); // km (소수점 두자리)
             $data['exercise_hours'][] = round($week['time'] / 60, 1); // 분
             $data['average_velocity'][] = $week['velocity_count'] > 0 
                 ? round($week['velocity_sum'] / $week['velocity_count'], 1) 
@@ -364,7 +364,7 @@ try {
         
         for ($i = 0; $i < 12; $i++) {
             $monthlyData['exercise_hours'][$i] = round($monthlyAggregate[$i]['time'] / 60, 1); // 초를 분으로 변환
-            $monthlyData['distance'][$i] = round($monthlyAggregate[$i]['distance'] / 1000, 1); // 미터를 km로 변환
+            $monthlyData['distance'][$i] = round($monthlyAggregate[$i]['distance'] / 1000, 2); // 미터를 km로 변환 (소수점 두자리)
             $monthlyData['average_velocity'][$i] = $monthlyAggregate[$i]['velocity_count'] > 0
                 ? round($monthlyAggregate[$i]['velocity_sum'] / $monthlyAggregate[$i]['velocity_count'], 1)
                 : 0;
@@ -457,7 +457,7 @@ try {
         
         for ($i = 0; $i < 10; $i++) {
             $decadeData['exercise_hours'][$i] = round($yearlyAggregate[$i]['time'] / 60, 1); // 초를 분으로 변환
-            $decadeData['distance'][$i] = round($yearlyAggregate[$i]['distance'] / 1000, 1); // 미터를 km로 변환
+            $decadeData['distance'][$i] = round($yearlyAggregate[$i]['distance'] / 1000, 2); // 미터를 km로 변환 (소수점 두자리)
             $decadeData['average_velocity'][$i] = $yearlyAggregate[$i]['velocity_count'] > 0
                 ? round($yearlyAggregate[$i]['velocity_sum'] / $yearlyAggregate[$i]['velocity_count'], 1)
                 : 0;
@@ -491,7 +491,7 @@ try {
         ];
 
         $data['total_time'] = round($totalTime, 1);
-        $data['total_distance'] = round($totalDistance, 1);
+        $data['total_distance'] = round($totalDistance, 2); // 소수점 두자리
         $data['avg_velocity_total'] = round($avgVelocity, 1);
 
         mysqli_stmt_close($stmt);
@@ -551,7 +551,7 @@ try {
         
         for ($i = 0; $i < 30; $i++) {
             $thirtyYearData['exercise_hours'][$i] = round($yearlyAggregate[$i]['time'] / 60, 1); // 초를 분으로 변환
-            $thirtyYearData['distance'][$i] = round($yearlyAggregate[$i]['distance'] / 1000, 1); // 미터를 km로 변환
+            $thirtyYearData['distance'][$i] = round($yearlyAggregate[$i]['distance'] / 1000, 2); // 미터를 km로 변환 (소수점 두자리)
             $thirtyYearData['average_velocity'][$i] = $yearlyAggregate[$i]['velocity_count'] > 0
                 ? round($yearlyAggregate[$i]['velocity_sum'] / $yearlyAggregate[$i]['velocity_count'], 1)
                 : 0;
@@ -585,7 +585,7 @@ try {
         ];
 
         $data['total_time'] = round($totalTime, 1);
-        $data['total_distance'] = round($totalDistance, 1);
+        $data['total_distance'] = round($totalDistance, 2); // 소수점 두자리
         $data['avg_velocity_total'] = round($avgVelocity, 1);
 
         mysqli_stmt_close($stmt);
@@ -642,7 +642,7 @@ try {
             }
             
             $hundredYearData['exercise_hours'][$i] = round($decadeTime / 60, 1); // 초를 분으로 변환
-            $hundredYearData['distance'][$i] = round($decadeDistance / 1000, 1); // 미터를 km로 변환
+            $hundredYearData['distance'][$i] = round($decadeDistance / 1000, 2); // 미터를 km로 변환 (소수점 두자리)
             $hundredYearData['average_velocity'][$i] = $decadeVelocityCount > 0
                 ? round($decadeVelocitySum / $decadeVelocityCount, 1)
                 : 0;
@@ -678,7 +678,7 @@ try {
         ];
 
         $data['total_time'] = round($totalTime, 1);
-        $data['total_distance'] = round($totalDistance, 1);
+        $data['total_distance'] = round($totalDistance, 2); // 소수점 두자리
         $data['avg_velocity_total'] = round($avgVelocity, 1);
     } else {
         // 다른 기간은 기본값 사용

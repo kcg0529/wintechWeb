@@ -127,7 +127,7 @@ try {
             $todayStats = [
                 'exercise_hours' => round($exerciseTime / 60, 1), // 초를 분으로 변환
                 'average_velocity' => round($averageVelocity, 1), // m/s
-                'distance' => round($distance / 1000, 1) // 미터를 km로 변환
+                'distance' => round($distance / 1000, 2) // 미터를 km로 변환
             ];
             
             // 달성률 계산
@@ -196,7 +196,7 @@ include 'header.php';
                     <div class="metric-icon distance">
                         <i class="fas fa-running"></i>
                     </div>
-                        <div class="metric-value" id="distance-value"><?php echo $todayStats['distance']; ?> Km</div>
+                        <div class="metric-value" id="distance-value"><?php echo number_format($todayStats['distance'], 2); ?> Km</div>
                     <div class="metric-label">운동거리</div>
                     <div class="progress-container" id="distance-progress">
                         <div style="width: 40px; height: 120px; background: #f0f0f0; border-radius: 20px; position: relative; margin: 0 auto; border: 2px solid #ddd;">
@@ -374,7 +374,13 @@ let currentPeriodLabel = '';
     
     // 날짜와 함께 데이터 업데이트
     async function updateMetricsDataWithDate(period, date) {
+        // 중복 호출 방지
+        if (isNavigating) {
+            console.log('이미 데이터 로딩 중입니다.');
+            return;
+        }
         
+        isNavigating = true;
         currentPeriod = period;
         currentDate = date;
         
@@ -397,9 +403,10 @@ let currentPeriodLabel = '';
         } catch (error) {
             console.error('❌ Error in updateMetricsDataWithDate:', error);
             updateMetricsData(period, todayStats, achievementRates, periodLabel);
+        } finally {
+            hideLoading();
+            isNavigating = false;
         }
-        
-        hideLoading();
     }
     
     // 로딩 표시
@@ -581,7 +588,7 @@ let currentPeriodLabel = '';
         switch(period) {
             case 'day':
                 // 일별 데이터 (실제 DB 데이터 또는 전달받은 데이터)
-                distanceValue.textContent = data.distance + ' Km';
+                distanceValue.textContent = parseFloat(data.distance).toFixed(2) + ' Km';
                 timeValue.textContent = data.exercise_hours + ' Min';
                 speedValue.textContent = data.average_velocity + ' m/s';
                 
@@ -632,7 +639,7 @@ let currentPeriodLabel = '';
                 
             case 'week':
                 // 주별 데이터 (실제 DB 데이터 또는 전달받은 데이터)
-                distanceValue.textContent = data.distance + ' Km';
+                distanceValue.textContent = parseFloat(data.distance).toFixed(2) + ' Km';
                 timeValue.textContent = data.exercise_hours + ' Min';
                 speedValue.textContent = data.average_velocity + ' m/s';
                 
@@ -767,7 +774,7 @@ let currentPeriodLabel = '';
                         avgVelocity = velocityCount > 0 ? (avgVelocity / velocityCount) : 0;
                     }
                     
-                    distanceValue.textContent = totalDistance.toFixed(1) + ' Km';
+                    distanceValue.textContent = totalDistance.toFixed(2) + ' Km';
                     timeValue.textContent = totalTime.toFixed(1) + ' Min';
                     speedValue.textContent = avgVelocity.toFixed(1) + ' m/s';
                 }
@@ -894,7 +901,7 @@ let currentPeriodLabel = '';
                         avgVelocity = velocityCount > 0 ? (avgVelocity / velocityCount) : 0;
                     }
                     
-                    distanceValue.textContent = totalDistance.toFixed(1) + ' Km';
+                    distanceValue.textContent = totalDistance.toFixed(2) + ' Km';
                     timeValue.textContent = totalTime.toFixed(1) + ' Min';
                     speedValue.textContent = avgVelocity.toFixed(1) + ' m/s';
                 }
@@ -1037,7 +1044,7 @@ let currentPeriodLabel = '';
                         avgVelocityDecade = velocityCountDecade > 0 ? (avgVelocityDecade / velocityCountDecade) : 0;
                     }
 
-                    distanceValue.textContent = totalDistanceDecade.toFixed(1) + ' Km';
+                    distanceValue.textContent = totalDistanceDecade.toFixed(2) + ' Km';
                     timeValue.textContent = totalTimeDecade.toFixed(1) + ' Min';
                     speedValue.textContent = avgVelocityDecade.toFixed(1) + ' m/s';
 
@@ -1383,11 +1390,13 @@ let currentPeriodLabel = '';
             dayButton.classList.add('active');
         }
         
-        // 기간 선택 버튼 이벤트
-        document.querySelectorAll('.period-btn:not(.disabled)').forEach(btn => {
-            btn.addEventListener('click', async function(e) {
+        // 기간 선택 버튼 이벤트 (중복 클릭 방지)
+        if (!window.periodButtonHandler) {
+            window.periodButtonHandler = async function(e) {
                 e.preventDefault();
                 e.stopPropagation();
+                
+                if (isNavigating) return; // 중복 클릭 방지
                 
                 // 모든 버튼 비활성화
                 document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
@@ -1401,7 +1410,12 @@ let currentPeriodLabel = '';
                 
                 // 데이터 로드 (내부에서 날짜 표시 업데이트됨)
                 await updateMetricsDataWithDate(period, currentDate);
-            });
+            };
+        }
+        
+        document.querySelectorAll('.period-btn:not(.disabled)').forEach(btn => {
+            btn.removeEventListener('click', window.periodButtonHandler);
+            btn.addEventListener('click', window.periodButtonHandler);
         });
         
         // DOM 요소 직접 조작으로 즉시 그래프 그리기
@@ -1412,7 +1426,7 @@ let currentPeriodLabel = '';
         
         // 값 즉시 업데이트 (실제 DB 데이터)
         if (distanceValue) {
-            distanceValue.textContent = todayStats.distance + ' Km';
+            distanceValue.textContent = parseFloat(todayStats.distance).toFixed(2) + ' Km';
         }
         if (timeValue) {
             timeValue.textContent = todayStats.exercise_hours + ' Min';
@@ -1472,40 +1486,37 @@ let currentPeriodLabel = '';
         const leftArrow = document.querySelector('.nav-arrow.left');
         const rightArrow = document.querySelector('.nav-arrow.right');
         
-        // 기존 이벤트 리스너 제거 (중복 방지)
+        // 이벤트 핸들러 함수 정의 (전역 스코프에 저장하여 중복 방지)
+        if (!window.navArrowHandlers) {
+            window.navArrowHandlers = {
+                left: async function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (isNavigating) return; // 중복 클릭 방지
+                    
+                    const newDate = getPrevDate(currentDate, currentPeriod);
+                    await updateMetricsDataWithDate(currentPeriod, newDate);
+                },
+                right: async function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (isNavigating) return; // 중복 클릭 방지
+                    
+                    const newDate = getNextDate(currentDate, currentPeriod);
+                    await updateMetricsDataWithDate(currentPeriod, newDate);
+                }
+            };
+        }
+        
+        // 기존 이벤트 리스너 제거 후 새로 등록
         if (leftArrow) {
-            leftArrow.replaceWith(leftArrow.cloneNode(true));
+            leftArrow.removeEventListener('click', window.navArrowHandlers.left);
+            leftArrow.addEventListener('click', window.navArrowHandlers.left);
         }
+        
         if (rightArrow) {
-            rightArrow.replaceWith(rightArrow.cloneNode(true));
-        }
-        
-        // 새로 이벤트 리스너 등록
-        const newLeftArrow = document.querySelector('.nav-arrow.left');
-        const newRightArrow = document.querySelector('.nav-arrow.right');
-        
-        if (newLeftArrow) {
-            newLeftArrow.addEventListener('click', async function(e) {
-                e.preventDefault();
-                if (isNavigating) return; // 중복 클릭 방지
-                
-                isNavigating = true;
-                const newDate = getPrevDate(currentDate, currentPeriod);
-                await updateMetricsDataWithDate(currentPeriod, newDate);
-                isNavigating = false;
-            });
-        }
-        
-        if (newRightArrow) {
-            newRightArrow.addEventListener('click', async function(e) {
-                e.preventDefault();
-                if (isNavigating) return; // 중복 클릭 방지
-                
-                isNavigating = true;
-                const newDate = getNextDate(currentDate, currentPeriod);
-                await updateMetricsDataWithDate(currentPeriod, newDate);
-                isNavigating = false;
-            });
+            rightArrow.removeEventListener('click', window.navArrowHandlers.right);
+            rightArrow.addEventListener('click', window.navArrowHandlers.right);
         }
     });
     
